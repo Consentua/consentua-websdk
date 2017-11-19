@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Consentua Web SDK Wrapper</title>
+
+  <link rel="stylesheet" href="wrapper.css">
+
+  <script src="wrapper.js" type="text/javascript"></script>
+
+
+
+</head>
+
+<body>
+
+  <!-- This iframe is the equivalent of the WebView in a native app, or iframe in a web app -->
+  <iframe id="consentua-widget" src=""></iframe>
+
+  <script>
+    // TODO: Get credentials and template ID from somewhere
+
+    var iframe = document.getElementById('consentua-widget');
+    var cwrap = new ConsentuaUIWrapper(iframe);
+  </script>
+
+</body>
+</html>

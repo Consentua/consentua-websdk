@@ -1,0 +1,54 @@
+<!-- main.html is the page that's loaded in the iframe/webview -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Consent</title>
+
+    <style type="text/css">
+    #loading{
+
+    }
+
+    #main{
+      display: none;
+    }
+    </style>
+
+    <script
+			  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+			  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+			  crossorigin="anonymous"></script>
+
+    <!-- This is the main library; all consentua interactions need it
+         ./sdk/ is made available automatically
+    -->
+    <script src="sdk/consentua.js"></script>
+
+    <!-- This is custom code for this specific interaction -->
+    <script src="simple.js"></script>
+
+</head>
+<body>
+
+    <script>
+    $().on('consentua-ready', function(){
+
+      console.log("Consentua is ready; setting up the simple interaction", window.consentua.template);
+
+      // Bind the simple UI to the template that we've been told to use
+      
+
+      // Hide the loading message and show the interaction
+      $('#loading').hide();
+      $('#main').show();
+
+    });
+    </script>
+
+    <div id="main">
+
+    </div>
+
+</body>
+</html>
