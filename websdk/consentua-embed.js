@@ -13,7 +13,8 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
 {
     var self = this;
 
-    var sdkbase = "https://websdk.consentua.com/";
+    //var sdkbase = "https://websdk.consentua.com/";
+    var sdkbase = "http://127.0.0.1:8080/svc/";
 
     iframe.setAttribute('src', sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid )
 
@@ -36,7 +37,7 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
         self.sendMsg('consentua-ready');
     }
 
-    window.addEventListener("message", function()
+    self.recv = function(event)
     {
         if(event.source != iframe)
         {
@@ -53,7 +54,7 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
         var msg = event.data;
 
         // TODO: Wait for the completion message and pass it to cb_done
-    });
+    };
 
-    self.recv);
+    window.addEventListener("message", self.recv);
 }

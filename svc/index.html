@@ -8,8 +8,18 @@
 
   <link rel="stylesheet" href="consentua.css">
 
+  <script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
+
+  <!-- TODO: Put this somewhere better -->
+  <script src="../websdk/comms.js" type="text/javascript"></script>
+
+
   <script src="consentua-client.js" type="text/javascript"></script>
   <script src="consentua-service.js" type="text/javascript"></script>
+
 
 
 </head>
@@ -23,63 +33,7 @@
 
   <script>
 
-  $().ready(function(){
-
-      // Parse info from hash
-      var h = window.location.hash;
-      var hp = h.split(/&/);
-      var args = {};
-      for(var i in hp){
-          var a = hp[i].split(/=/);
-          args[a[0]] = a[1];
-      }
-
-      console.log(args);
-
-      if(typeof args['s'] == 'undefined' || typeof args['k'] == 'undefined' || typeof args['c'] == 'undefined' || typeof args['t'] == 'undefined'){
-          $('#err').text("Required parameter(s) missing - Check and update your consentua embed code").show();
-      }
-
-      /**
-       * Set up messaging with the embedding page, and the interaction itself
-       */
-      var wrapcomms = new WindowComms(window.parent);
-      var intcomms = new WindowComms($('#consentua-interaction').get(0));
-
-      var c = new ConsentuaClient(args['c'], args['s'], args['k'], 'en');
-
-      /**
-       * A user identifier *may* be passed as the uid field in the hash, but otherwise an anonymous one is generated
-       */
-      if(typeof args['uid'] == 'undefiend'){
-          args['uid'] = 'anon-' + args['s'] + '-' + Math.floor((new Date()).now() / 1000) + '-' + Math.floor(Math.random() * 1000000);
-          c.addUser(args.uid);
-      }
-      else{
-          
-      }
-
-
-      // Wait for the interaction to be ready, then send it the template
-      intcomms.addHandler('consentua-waiting', function(msg){
-          c.getTemplate(args['t'], function(template){
-              msg.reply(template);
-      }));
-
-      // Wait for consent to be set
-      intcomms.addHandler('consentua-set', function(msg){
-
-          // TODO: Save the consent
-
-
-          wrapcomms.send('consentua-done', {
-              uid: args['uid'],
-              consents: msg.consents
-          });
-      });
-
-
-  });
+    // consentua-service.js does everything
 
   </script>
 

@@ -26,16 +26,16 @@
   <iframe id="consentua-widget" src=""></iframe>
 
   <script>
-    var cid = '2';
-    var tid = '1';
-    var sid = '4'; // Consentua service
+    var cid = '2'; // Customer ID
+    var tid = '1'; // Template ID
+    var sid = '1'; // Consentua service ID
     var skey = 'e384c7be-bd8f-422f-b8d5-a5e723789a29'; // Consentua service
 
     // TODO: Generate the iframe programatically - adjacent to this script element
 
     var iframe = document.getElementById('consentua-widget');
-    var cwrap = new ConsentuaUIWrapper(iframe, cid, tid, sid, skey function(){
-
+    var cwrap = new ConsentuaUIWrapper(iframe, cid, tid, sid, skey, function(){
+	alert("Consentua done!");
     });
   </script>
 
