@@ -23,10 +23,7 @@
     <!-- This is the main library; all consentua interactions need it
          ./sdk/ is made available automatically
     -->
-    <script src="sdk/consentua.js"></script>
-
-    <!-- This is custom code for this specific interaction -->
-    <script src="simple.js"></script>
+    <script src="../sdk/consentua-interaction.js"></script>
 
 </head>
 <body>
@@ -37,7 +34,12 @@
       console.log("Consentua is ready; setting up the simple interaction", window.consentua.template);
 
       // Bind the simple UI to the template that we've been told to use
-      
+      for(var i in window.consentua.template.purposes)
+      {
+          var p = window.consentua.template.purposes[i];
+          $('#purposes').add("<li>" + p.text + "</li>");
+      }
+
 
       // Hide the loading message and show the interaction
       $('#loading').hide();
@@ -46,8 +48,16 @@
     });
     </script>
 
-    <div id="main">
+    <div id="loading">
+        Please wait...
+    </div>
 
+    <div id="main">
+        <ol id="purposes"></ol>
+
+        <div id="assent">
+            <input type="checkbox" name="toggle-assent" value="1" /> <span>I agree that my personal data may be used for the purposes stated above.</span>
+        </div>
     </div>
 
 </body>

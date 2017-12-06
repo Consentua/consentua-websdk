@@ -8,7 +8,9 @@
 
   <link rel="stylesheet" href="wrapper.css">
 
-  <script src="wrapper.js" type="text/javascript"></script>
+  <!-- consentua-embed.js is the only code that needs to be included by clients
+       it should be included from a "live" version somewhere -->
+  <script src="websdk/consentua-embed.js" type="text/javascript"></script>
 
 
 
@@ -16,14 +18,25 @@
 
 <body>
 
+  <h1>Consentua Web SDK Demonstrator</h1>
+
+  <p>This page demonstrates how Consentua web components can be embedded into an HTML page to collect consent as part of an HTML form or other web flow.</p>
+
   <!-- This iframe is the equivalent of the WebView in a native app, or iframe in a web app -->
   <iframe id="consentua-widget" src=""></iframe>
 
   <script>
-    // TODO: Get credentials and template ID from somewhere
+    var cid = '2';
+    var tid = '1';
+    var sid = '4'; // Consentua service
+    var skey = 'e384c7be-bd8f-422f-b8d5-a5e723789a29'; // Consentua service
+
+    // TODO: Generate the iframe programatically - adjacent to this script element
 
     var iframe = document.getElementById('consentua-widget');
-    var cwrap = new ConsentuaUIWrapper(iframe);
+    var cwrap = new ConsentuaUIWrapper(iframe, cid, tid, sid, skey function(){
+
+    });
   </script>
 
 </body>
