@@ -10,6 +10,8 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
     var self = this;
     var templates = false;
 
+    self.accessToken = '[NOT SET]';
+
     /**
      * Log in to the API to get an access token
      */
@@ -18,17 +20,18 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
         var deferred = $.Deferred();
 
         var loggedin = function(data){
-            if(!data.success){
+            if(!data.Success){
                 console.error("Could not log in to Consentua service", data);
                 return;
             }
-            self.accessToken = data.token;
+            self.accessToken = data.Token;
+            console.log("Logged in to Consentua service account", self.accessToken);
             deferred.resolve();
         };
 
         var d = new Date();
         var loginStr = serviceKey + '_' + (d.getUTCDate()) + '_' + (d.getUTCMonth() + 1) + '_' + (d.getUTCFullYear());
-        var loginToken = md5(loginStr);
+        var loginToken = md5(loginStr).toUpperCase();
         console.log("Generate service login token", loginStr, loginToken);
         var args = {
                 ClientId: clientID,
@@ -51,6 +54,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
         data.clientId = clientID;
         data.serviceId = serviceID;
+        data.token = self.accessToken;
         data.accessToken = self.accessToken;
         data.language = lang;
 
@@ -64,8 +68,11 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
         data.clientId = clientID;
         data.serviceId = serviceID;
+        data.token = self.accessToken;
         data.accessToken = self.accessToken;
         data.language = lang;
+
+        console.log(data);
 
         return $.post(baseurl + path, data, null, 'json');
     }
@@ -79,6 +86,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
         {
             data.clientId = clientID;
             data.serviceId = serviceID;
+            data.token = self.accessToken;
             data.accessToken = self.accessToken;
             data.language = lang;
         }
@@ -106,8 +114,8 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
             deferred.resolve(templates);
         }
         else {
-            self.request('/template/Get', {}).done(function(response){
-                templates = response; // Cache for later
+            self.get('/template/Get', {}).done(function(response){
+                templates = response.Templates; // Cache for later
                 deferred.resolve(templates);
             });
         }
@@ -115,29 +123,83 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
         return deferred;
     }
 
+    self.getTemplate = function(tid){
+        var def = $.Deferred();
+
+        function pickTemplate(){
+            for(var i in templates){
+                var t = templates[i];
+                if(t.Id == tid) {
+                    def.resolve(t);
+                    return;
+                }
+            }
+
+            console.error("Template " + tid + " was not found", templates);
+            def.reject();
+        }
+
+        self.getTemplates().done(pickTemplate);
+
+        return def;
+    }
+
     /**
      * Test if a user with the given UID exists; the deffered .done method receives
-     * true if they do, false if not
+     * true if they do, false if not; if true, the second arg will be the UserId
      */
     self.testIfUserExists = function(uid){
         var def = $.Deferred();
 
         self.get('/user/GetServiceUser', {identifier: uid}).done(function(data){
-            def.resolve(true);
-        }).error(function(xhr, status){
-            if(status == '404')
-                def.resolve(false);
+            def.resolve(true, data.UserId);
+        }).fail(function(xhr, status){
+            if(xhr.status == '404')
+                def.resolve(false, undefined)
         });
 
         return def;
     }
 
     /**
-     * Add a user with the specified ID to the service
+     * Add a user with the specified ID to the service.
+     * Deferred .done() is passed the UserID of the new user
      */
     self.addUser = function(uid){
-        return self.post('/user/AddUserToService', {identifier: uid});
+        var def = $.Deferred();
+
+        self.post('/user/AddUserToService', {identifier: uid}).done(function(result){
+            def.resolve(result.UserId);
+        });
+
+        return def;
     }
+
+    /**
+     * Add a user if they don't already exist
+     * Deferred .done() is passed the UserID of the (possibly new) user
+     */
+     self.addUserIfNotExist = function(uid){
+
+         var def = $.Deferred();
+
+         console.log("Test if user exists", uid, self.testIfUserExists);
+         self.testIfUserExists(uid).done(function(exists, userid){
+
+             if(exists) {
+                 def.resolve(userid);
+             }
+             else {
+                 self.addUser(uid).done(function(newuserid){
+                     def.resolve(newuserid);
+                 })
+             }
+
+         });
+
+         return def;
+
+     }
 
 }
 

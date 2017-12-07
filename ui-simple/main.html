@@ -21,15 +21,16 @@
 			  crossorigin="anonymous"></script>
 
     <!-- This is the main library; all consentua interactions need it
-         ./sdk/ is made available automatically
+         ./websdk/ is made available automatically
     -->
-    <script src="../sdk/consentua-interaction.js"></script>
+    <script src="../websdk/consentua-interaction.js"></script>
+    <script src="../websdk/comms.js"></script>
 
 </head>
 <body>
 
     <script>
-    $().on('consentua-ready', function(){
+    $(document).on('consentua-ready', function(){
 
       console.log("Consentua is ready; setting up the simple interaction", window.consentua.template);
 

@@ -23,33 +23,71 @@ if(typeof args['s'] == 'undefined' || typeof args['k'] == 'undefined' || typeof 
 * Set up messaging with the embedding page, and the interaction itself
 */
 var wrapcomms = new WindowComms(window.parent);
-var intcomms = new WindowComms($('#consentua-interaction').get(0));
+var intcomms = new WindowComms($('#consentua-interaction').get(0).contentWindow);
 
 var c = new ConsentuaClient(args['c'], args['s'], args['k'], 'en');
 
-/**
-* A user identifier *may* be passed as the uid field in the hash, but otherwise an anonymous one is generated
-*/
-if(typeof args['uid'] == 'undefined'){
-  var ts = Date.now();
-  args['uid'] = 'anon-' + args['s'] + '-' + Math.floor(ts / 1000) + '-' + Math.floor(Math.random() * 1000000);
-  c.addUser(args.uid);
-}
-else{
+// Do service login, then create a new user
+c.login().fail(function(){console.err("Service login failed");}).then(function(){
+    /**
+     * A user identifier *may* be passed as the uid field in the hash, but otherwise an anonymous one is generated
+     */
+    if(typeof args['uid'] == 'undefined'){
+      var ts = Date.now();
+      args['uid'] = 'anon-' + args['s'] + '-' + Math.floor(ts / 1000) + '-' + Math.floor(Math.random() * 1000000);
+    }
 
-}
+    c.addUserIfNotExist(args.uid).then(function(userid){
+        console.log("Consentua UID:", args.uid, userid);
+    });
 
-console.log("Consentua UID: " + args.uid);
+    /**
+     * In parallel, download the template
+     */
+     var gt = c.getTemplate(args.t);
+     gt.done(function(template){
+         console.log("Consentua template:", template);
+     });
 
-c.login();
+     /**
+      * When the template and the user are both ready, load the interaction in the child iframe
+      */
+     $.when(gt/*, au*/).then(function(template, userid){
+
+         // TODO: Interaction type should be in template, but atm it isn't, so polyfill it
+         if(typeof template.ixUrl == 'undefined') {
+
+             console.log("Interaction URL is not provided by template, picking based on DisplayType", template.DisplayType);
+
+             switch(template.DisplayType.toLowerCase())
+             {
+                 case 'linear':
+                    template.ixUrl = '/ui-slider/main.html';
+                    break;
+                case 'binary':
+                    template.ixUrl = '/ui-simple/main.html';
+                    break;
+             }
+
+         }
+
+         console.log("Template and user account are ready; loading interaction", template.ixUrl);
+
+         // TODO: Check for existing user consents; this could be done while the interaction itself loads
+
+         $('#consentua-interaction').attr('src', template.ixUrl);
+     });
+});
 
 
 
-// Wait for the interaction to be ready, then send it the template
+// Wait for the interaction to be ready, then send it the template information
+// NB: Template info will already be loaded, so this should be quick
 intcomms.addHandler('consentua-waiting', function(msg){
-  c.getTemplate(args['t'], function(template){
+   console.log("Interaction indicated that it is waiting for template");
+   c.getTemplate(args['t']).then(function(template){
       msg.reply(template);
-  });
+   });
 });
 
 // Wait for consent to be set
@@ -57,7 +95,7 @@ intcomms.addHandler('consentua-set', function(msg){
 
   // TODO: Save the consent
 
-
+  // Tell the customer site that the consent interaction is complete
   wrapcomms.send('consentua-done', {
       uid: args['uid'],
       consents: msg.consents

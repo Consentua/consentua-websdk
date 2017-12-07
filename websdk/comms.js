@@ -8,23 +8,28 @@ function WindowComms(targetWindow)
 
     var replyHandlers = {};
 
+    console.log("Create comms channel between", window, targetWindow);
+
     // Send a message to the parent window
     self.send = function(msgType, msgPayload, msgReplyHandler, msgId){
 
         // Replies keep the ID of the parent, but otherwise a new ID should be assigned
         if(typeof msgId == 'undefined'){
-            var id = ++commsID;
+            var msgId = ++commsID;
         }
 
         if(typeof msgReplyHandler !== 'undefined'){
-            replyHandlers[id] = msgReplyHandler;
+            replyHandlers[msgId] = msgReplyHandler;
         }
 
-        targetWindow.parent.postMessage({type: msgType, id: id, message:
-        msgPayload}, "*"); };
+        console.log("Send", msgType, msgPayload);
+
+        targetWindow.postMessage({type: msgType, id: msgId, message:msgPayload}, "*"); };
 
     // Receive messages from the other window, and see if there's a handler for them
     self.recv = function(event){
+
+        console.log("Receive message", event);
 
         if(event.source != targetWindow) // Only handle messages that come from the bound window
         {

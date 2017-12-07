@@ -41,13 +41,13 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
     {
         if(event.source != iframe)
         {
-            console.log("Received message didn't come from consentua iframe");
+            console.log("Received message didn't come from consentua iframe", event.source);
             return;
         }
 
-        if(!event.origin.match(/^https?:\/\/websdk.consentua.com/))
+        if(!event.origin.match(/^(https?:\/\/websdk.consentua.com\/|127\.0\.0\.1(:[0-9]+)?\/)/)) // Allow 127.0.0.1 for development
         {
-            console.error("Message did not come from Consentua Web Service");
+            console.error("Message did not come from Consentua Web Service", event.origin);
             return;
         }
 
