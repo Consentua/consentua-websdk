@@ -18,6 +18,8 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
 
     iframe.setAttribute('src', sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid )
 
+    var idoc = iframe.contentWindow.docuent;
+
     /**
      * Send a custom event of etype to the subDOM
      */
@@ -39,21 +41,26 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
 
     self.recv = function(event)
     {
-        if(event.source != iframe)
+        if(event.source != iframe.contentWindow)
         {
-            console.log("Received message didn't come from consentua iframe", event.source);
+            console.log("Received message didn't come from consentua iframe", event.source, iframe);
             return;
         }
 
-        if(!event.origin.match(/^(https?:\/\/websdk.consentua.com\/|127\.0\.0\.1(:[0-9]+)?\/)/)) // Allow 127.0.0.1 for development
+        if(!event.origin.match(/^https?:\/\/(websdk.consentua.com\/|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
         {
             console.error("Message did not come from Consentua Web Service", event.origin);
             return;
         }
 
         var msg = event.data;
+        console.log("Message from service", msg);
 
         // TODO: Wait for the completion message and pass it to cb_done
+        if(msg.type == 'consentua-ready'){
+            // Fit frame to interaction height
+            iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 20) + 'px';
+        }
     };
 
     window.addEventListener("message", self.recv);

@@ -6,12 +6,22 @@
     <title>Simple Consent</title>
 
     <style type="text/css">
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: Helvetica, sans-serif;
+    }
+
     #loading{
 
     }
 
     #main{
       display: none;
+    }
+
+    ol {
+        list-style-type: none;
     }
     </style>
 
@@ -35,10 +45,18 @@
       console.log("Consentua is ready; setting up the simple interaction", window.consentua.template);
 
       // Bind the simple UI to the template that we've been told to use
-      for(var i in window.consentua.template.purposes)
+      var pgs = window.consentua.template.PurposeGroups;
+      console.log("Purpose groups", pgs);
+      for(var i in pgs)
       {
-          var p = window.consentua.template.purposes[i];
-          $('#purposes').add("<li>" + p.text + "</li>");
+          var pg = pgs[i];
+          var purposes = "";
+          console.log("PG " + i, pg.Purposes);
+
+          for(var j in pg.Purposes) {
+              purposes += pg.Purposes[j].DataPurpose + "<br />";
+          }
+          $('#purposes').append("<li>" + purposes + "<br /></li>");
       }
 
 

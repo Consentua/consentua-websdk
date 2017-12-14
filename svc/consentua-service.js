@@ -37,7 +37,8 @@ c.login().fail(function(){console.err("Service login failed");}).then(function()
       args['uid'] = 'anon-' + args['s'] + '-' + Math.floor(ts / 1000) + '-' + Math.floor(Math.random() * 1000000);
     }
 
-    c.addUserIfNotExist(args.uid).then(function(userid){
+    var au = c.addUserIfNotExist(args.uid);
+    au.then(function(userid){
         console.log("Consentua UID:", args.uid, userid);
     });
 
@@ -52,7 +53,8 @@ c.login().fail(function(){console.err("Service login failed");}).then(function()
      /**
       * When the template and the user are both ready, load the interaction in the child iframe
       */
-     $.when(gt/*, au*/).then(function(template, userid){
+     // TODO: Should wait for user to be ready, but that's not working in client atm?!
+     $.when(gt, au).then(function(template, userid){
 
          // TODO: Interaction type should be in template, but atm it isn't, so polyfill it
          if(typeof template.ixUrl == 'undefined') {
@@ -90,13 +92,25 @@ intcomms.addHandler('consentua-waiting', function(msg){
    });
 });
 
+// Wait for interaction to be ready
+intcomms.addHandler('consentua-ready', function(msg){
+    console.log("Interaction indicated to service that it is ready");
+
+    // Fit frame to interaction height
+    var iframe = $('#consentua-interaction').get(0);
+    iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 20) + 'px';
+
+    // Tell the embedding page, too
+    wrapcomms.send('consentua-ready');
+});
+
 // Wait for consent to be set
 intcomms.addHandler('consentua-set', function(msg){
 
   // TODO: Save the consent
 
   // Tell the customer site that the consent interaction is complete
-  wrapcomms.send('consentua-done', {
+  wrapcomms.send('consentua-set', {
       uid: args['uid'],
       consents: msg.consents
   });

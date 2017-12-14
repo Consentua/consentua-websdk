@@ -72,9 +72,38 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
         data.accessToken = self.accessToken;
         data.language = lang;
 
-        console.log(data);
+        console.log("POST", data);
 
-        return $.post(baseurl + path, data, null, 'json');
+        return $.ajax({
+            type: "POST",
+            url: baseurl + path,
+            data: data,
+            dataType: "json"
+        });
+    }
+
+    /**
+     * Post, but put the data in the query string. YIKR :-|
+     */
+    self.postQS = function(path, data)
+    {
+        if(typeof data != 'object' || data === null) // typeof null === 'object' :/
+            var data = {};
+
+        data.clientId = clientID;
+        data.serviceId = serviceID;
+        data.token = self.accessToken;
+        data.accessToken = self.accessToken;
+        data.language = lang;
+
+        console.log("POST", data);
+
+        return $.ajax({
+            type: "POST",
+            url: baseurl + path + "?" + $.param(data),
+            data: {},
+            dataType: "json"
+        });
     }
 
     self.postBody = function(path, data, autoAddCredentials)
@@ -168,7 +197,9 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
     self.addUser = function(uid){
         var def = $.Deferred();
 
-        self.post('/user/AddUserToService', {identifier: uid}).done(function(result){
+        console.log("Create", uid);
+
+        self.postQS('/user/AddUserToService', {identifier: uid}).done(function(result){
             def.resolve(result.UserId);
         });
 
@@ -183,7 +214,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
          var def = $.Deferred();
 
-         console.log("Test if user exists", uid, self.testIfUserExists);
+         console.log("Test if user exists", uid);
          self.testIfUserExists(uid).done(function(exists, userid){
 
              if(exists) {

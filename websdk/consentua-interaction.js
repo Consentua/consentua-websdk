@@ -24,7 +24,7 @@ var ConsentuaController = function(){
         console.log("Received consentua template", msg);
 
         // TODO: Check that the provided template is valid
-        window.consentua.template = msg.message;
+        self.template = msg.message;
 
         // TODO: Add helper methods to the template
 
@@ -34,6 +34,19 @@ var ConsentuaController = function(){
         $(document).trigger('consentua-ready');
 
         comms.send("consentua-ready"); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
+    }
+
+    /**
+     * Helpers to get/set consent
+     */
+    self.getConsent = function(purposeGroupId, consented){
+
+    }
+
+    self.setConsent = function(purposeGroupId, consented){
+
+        
+
     }
 
 };
