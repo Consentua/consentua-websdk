@@ -31,7 +31,14 @@ var ConsentuaController = function(){
         // Tell the current document that the consentua environment is ready
         // This should trigger interaction setup; i.e. the interaction should be
         // listening for it!
-        $(document).trigger('consentua-ready');
+
+        // jQuery
+        if(typeof $ != 'undefined')
+          $(document).trigger('consentua-ready');
+
+        // and NATIVE
+        var event = new Event('consentua-ready');
+        document.body.despatchEvent(event);
 
         comms.send("consentua-ready"); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
     }
@@ -40,13 +47,11 @@ var ConsentuaController = function(){
      * Helpers to get/set consent
      */
     self.getConsent = function(purposeGroupId, consented){
-
+        return self.consents[purposeGroupID];
     }
 
     self.setConsent = function(purposeGroupId, consented){
-
-        
-
+        comms.send('consentua-set', {purposeGroupId: purposeGroupId, consented: consented});
     }
 
 };
