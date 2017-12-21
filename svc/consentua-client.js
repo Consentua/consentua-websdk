@@ -174,6 +174,11 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
     }
 
     /**
+     * We need to map global identifiers with internal user IDs
+     */
+    self.uidmap = {};
+
+    /**
      * Test if a user with the given UID exists; the deffered .done method receives
      * true if they do, false if not; if true, the second arg will be the UserId
      */
@@ -181,6 +186,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
         var def = $.Deferred();
 
         self.get('/user/GetServiceUser', {identifier: uid}).done(function(data){
+            self.uidmap[uid] = data.UserId;
             def.resolve(true, data.UserId);
         }).fail(function(xhr, status){
             if(xhr.status == '404')
@@ -200,6 +206,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
         console.log("Create", uid);
 
         self.postQS('/user/AddUserToService', {identifier: uid}).done(function(result){
+            self.uidmap[uid] = result.UserId;
             def.resolve(result.UserId);
         });
 
@@ -222,6 +229,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
              }
              else {
                  self.addUser(uid).done(function(newuserid){
+                     self.uidmap[uid] = newuserid;
                      def.resolve(newuserid);
                  })
              }
@@ -231,6 +239,17 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
          return def;
 
      }
+
+     /**
+      * Get consents for the given UID
+      */
+    self.getConsents = function(uid) {
+        if(typeof self.uidmap[uid] == 'undefined') {
+            console.error("User identifier has not been bound, yet - call addUSer or something ;)");
+        }
+
+        return $.PostBody({self.uidmap[uid]});
+    }
 
 }
 

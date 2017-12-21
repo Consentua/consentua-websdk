@@ -21,10 +21,11 @@ var ConsentuaController = function(){
     // consent template to be used; this handles it
     function init(msg)
     {
-        console.log("Received consentua template", msg);
+        console.log("Received consentua bootstrap info", msg);
 
         // TODO: Check that the provided template is valid
-        self.template = msg.message;
+        self.template = msg.message.template;
+        self.consents = msg.message.consents;
 
         // TODO: Add helper methods to the template
 
@@ -40,7 +41,8 @@ var ConsentuaController = function(){
         var event = new Event('consentua-ready');
         document.body.dispatchEvent(event);
 
-        comms.send("consentua-ready"); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
+
+        comms.send("consentua-ready", {height: document.scrollHeight}); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
     }
 
     /**
@@ -50,9 +52,27 @@ var ConsentuaController = function(){
         return self.consents[purposeGroupID];
     }
 
-    self.setConsent = function(purposeGroupId, consented){
-        comms.send('consentua-set', {purposeGroupId: purposeGroupId, consented: consented});
+    self.setConsentGroup = function(purposeGroupId, consented){
+
+        for(var purpose in self.consents) {
+          setConsent(purpose, consented);
+        }
+
+        comms.send('consentua-set', {consents: self.consents});
     }
+
+    self.setConsent = function(purposeID, consented) {
+        self.consents[purposeID] = consented;
+    }
+
+    self.setConsentPurpose = function(purposeId, consented){
+        setConsent(purposeId, consented);
+        comms.send('consentua-set', {consents: self.consents});
+    }
+
+    /**
+     *
+     */
 
 };
 

@@ -39,7 +39,7 @@ c.login().fail(function(){console.err("Service login failed");}).then(function()
 
     var au = c.addUserIfNotExist(args.uid);
     au.then(function(userid){
-        console.log("Consentua UID:", args.uid, userid);
+        console.log("Consentua UID: ", args.uid, "API UserID: ", userid);
     });
 
     /**
@@ -87,10 +87,20 @@ c.login().fail(function(){console.err("Service login failed");}).then(function()
 // NB: Template info will already be loaded, so this should be quick
 intcomms.addHandler('consentua-waiting', function(msg){
    console.log("Interaction indicated that it is waiting for template");
-   c.getTemplate(args['t']).then(function(template){
-      msg.reply(template);
+
+   // Now load the user, and their existing consents
+   // TODO: Parallelise this, while interaction loads - see above
+
+   var user = {NOT_IMPLEMENTED: true};
+
+   var pTemplate = c.getTemplate(args['t']);
+   var pConsents = c.getConsents(args['uid']);
+
+   // When the existing consents and the template are ready, give them to the interaction
+   $.when(pTemplate, pConsents).then(function(template, consents){
+      msg.reply({template: template, consents: consents, user: user});
    });
-});
+ });
 
 // Wait for interaction to be ready
 intcomms.addHandler('consentua-ready', function(msg){
@@ -98,7 +108,7 @@ intcomms.addHandler('consentua-ready', function(msg){
 
     // Fit frame to interaction height
     var iframe = $('#consentua-interaction').get(0);
-    iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 20) + 'px';
+    iframe.style.height = msg.height; // The interaction should tell us how high it wants to be
 
     // Tell the embedding page, too
     wrapcomms.send('consentua-ready');
@@ -107,7 +117,7 @@ intcomms.addHandler('consentua-ready', function(msg){
 // Wait for consent to be set
 intcomms.addHandler('consentua-set', function(msg){
 
-  // TODO: Save the consent
+  // TODO: Save the consent to API
 
   // Tell the customer site that the consent interaction is complete
   wrapcomms.send('consentua-set', {
