@@ -9,7 +9,7 @@
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
  */
-function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey, cb_done)
+function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey, cb_set)
 {
     var self = this;
 
@@ -54,12 +54,16 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
         }
 
         var msg = event.data;
-        console.log("Message from service", msg);
+        console.debug("Message from service", msg);
 
-        // TODO: Wait for the completion message and pass it to cb_done
+        // When the interaction is ready, set the iframe height
         if(msg.type == 'consentua-ready'){
             // Fit frame to interaction height
-            iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 20) + 'px';
+            iframe.style.height = (msg.message.height + 20) + 'px';
+        }
+        // When consent is set, pass it to the callback
+        else if (msg.type == 'consentua-set'){
+            cb_set(msg);
         }
     };
 

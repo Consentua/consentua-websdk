@@ -113,11 +113,9 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
         if(typeof autoAddCredentials == 'undefined' || autoAddCredentials)
         {
-            data.clientId = clientID;
-            data.serviceId = serviceID;
-            data.token = self.accessToken;
-            data.accessToken = self.accessToken;
-            data.language = lang;
+            data.ClientId = parseInt(clientID);
+            data.ServiceId = parseInt(serviceID);
+            data.Token = self.accessToken;
         }
 
         console.log("PostBody", data);
@@ -229,7 +227,6 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
              }
              else {
                  self.addUser(uid).done(function(newuserid){
-                     self.uidmap[uid] = newuserid;
                      def.resolve(newuserid);
                  })
              }
@@ -237,18 +234,57 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
          });
 
          return def;
-
      }
 
      /**
       * Get consents for the given UID
       */
-    self.getConsents = function(uid) {
+    self.getConsents = function(uid)
+    {
         if(typeof self.uidmap[uid] == 'undefined') {
-            console.error("User identifier has not been bound, yet - call addUSer or something ;)");
+            console.error("User identifier '" + uid + "' has not been resolved, yet - call addUser() or testIfUserExists()!");
         }
 
-        return $.PostBody({self.uidmap[uid]});
+        var def = $.Deferred();
+        self.postBody('/userconsent/GetConsents', {"UserId": self.uidmap[uid]}).done(function(response){
+            if(response.success)
+                def.resolve(response.Consent.Purposes);
+            else
+                def.resolve({});
+        });
+
+        return def;
+    }
+
+    /**
+     * Set consent for the given user. Purposes should be an object of the form:
+     * { purposeID: boolean, purpose2ID: boolean }
+     */
+    self.setConsents = function(uid, templateid, purposes) {
+        if(typeof self.uidmap[uid] == 'undefined') {
+            console.error("User identifier '" + uid + "' has not been resolved, yet - call addUser() or testIfUserExists()!");
+        }
+
+        var model = {
+                // Token will be added automatically
+                "Consent": {
+                    "ClientId": clientID,
+                    "ServiceId": serviceID,
+                    "UserId": self.uidmap[uid],
+                    "Purposes": []
+                }
+        };
+
+        for(var pid in purposes){
+            model.Consent.Purposes.push({ConsentTemplateId: templateid, PurposeId:pid, Consent: purposes[pid]});
+        }
+
+        var def = $.Deferred();
+        self.postBody('/userconsent/SetConsents', model).done(function(response){
+            def.resolve(response);
+        });
+
+        return def;
     }
 
 }

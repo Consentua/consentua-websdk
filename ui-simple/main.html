@@ -40,29 +40,79 @@
 <body>
 
     <script>
+    /**
+     * Interactions should wait until they receive a 'consentua-ready' event before initialising.
+     * This event is triggered in jQuery (if available) and as a native event (on document.body)
+     *
+     * Once that event has been triggered, you'll be able to access window.consentua which is provides
+     * an interface to the rest of the consentua service.
+     */
     $(document).on('consentua-ready', function(){
 
+      /**
+       * The consent template that should be used is made available as window.consentua.template
+       *
+       * You can use the template to configure the interaction that you display. At the very least, if you've
+       * built a specific interaction for a particular use case, you should check that the interaction has been
+       * invoked on a template that it legitimately applies to.
+       */
       console.log("Consentua is ready; setting up the simple interaction", window.consentua.template);
 
-      // Bind the simple UI to the template that we've been told to use
+      // It contains things like purpose groups
       var pgs = window.consentua.template.PurposeGroups;
       console.log("Purpose groups", pgs);
       for(var i in pgs)
       {
           var pg = pgs[i];
           var purposes = "";
-          console.log("PG " + i, pg.Purposes);
+          console.debug("PG " + i, pg.Purposes);
 
           for(var j in pg.Purposes) {
               purposes += pg.Purposes[j].DataPurpose + "<br />";
           }
+
           $('#purposes').append("<li>" + purposes + "<br /></li>");
       }
 
 
-      // Hide the loading message and show the interaction
+      /**
+       * We suggest showing some kind of loading indicator while the consentua interaction
+       * is initialised; it can take a second or two for the various setup operations to
+       * happen.
+       */
       $('#loading').hide();
       $('#main').show();
+
+      /**
+       * As consent is granted or withdrawn, you should send events back to consentua
+       * Do this in real-time, so that the parent web page, and consentua itself, have
+       * an up to date record of the current consent state.
+       *
+       * You send consent state back by calling window.consentua.setConsent(..)
+       * It takes two arguments, first: an array containing the IDs of purposeGroups
+       * that are being changed. And a boolean to indicate if consent is granted. True
+       * if consent was given, false if it was withdrawn.
+       *
+       * It's REALLY important that, if consent is simultaneously being withdrawn and
+       * granted (for instance if there are different options to choose between) you
+       * WITHDRAW the old consent before granting the new one. Otherwise, purposes that
+       * are listed in both purpose groups will be marked as non-consented by the
+       * withdrawal!
+       *
+       */
+      $('#toggle-assent').on('change', function(){
+
+          var consent = $('#toggle-assent').is(':checked');
+          var groups = window.consentua.template.PurposeGroups;
+          var groupids = [];
+          for(var i in groups){
+              groupids.push(i);
+          }
+
+          console.log("Toggle consent on purpose groups", groupids, consent);
+
+          window.consentua.setConsent(groupids, consent);
+      });
 
     });
     </script>
@@ -75,7 +125,7 @@
         <ol id="purposes"></ol>
 
         <div id="assent">
-            <input type="checkbox" name="toggle-assent" value="1" /> <span>I agree that my personal data may be used for the purposes stated above.</span>
+            <input type="checkbox" id="toggle-assent" value="1" /> <span>I agree that my personal data may be used for the purposes stated above.</span>
         </div>
     </div>
 
