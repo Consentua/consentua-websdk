@@ -66,7 +66,7 @@ var ConsentuaController = function()
         var event = new Event('consentua-ready');
         document.body.dispatchEvent(event);
 
-        comms.send("consentua-ready", {height: document.body.scrollHeight}); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
+        comms.send("consentua-ready", {height: 600}); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
     }
 
     /**

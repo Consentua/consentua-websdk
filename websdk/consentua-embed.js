@@ -59,7 +59,7 @@ function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey,
         // When the interaction is ready, set the iframe height
         if(msg.type == 'consentua-ready'){
             // Fit frame to interaction height
-            iframe.style.height = (msg.message.height + 20) + 'px';
+            iframe.style.height = '600px';
         }
         // When consent is set, pass it to the callback
         else if (msg.type == 'consentua-set'){
