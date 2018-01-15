@@ -76,10 +76,10 @@ function loadInteraction(template, userid)
         switch(template.DisplayType.toLowerCase())
         {
             case 'linear':
-               template.ixUrl = '/ui-slider/main.html';
+                template.ixUrl = '/ui-polymer/index.html';
                break;
            case 'binary':
-               template.ixUrl = '/ui-simple/main.html';
+               template.ixUrl = '/ui-polymer/index.html';
                break;
         }
 
