@@ -1,8 +1,9 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 
-
+<link rel="import" href="./consentua-icons.html">
 
 <dom-module id="ui-polymer-app">
   <template>
@@ -29,6 +30,22 @@
         color: #fff;
         text-transform: capitalize;
         min-width: 22%;
+      }
+      .no-template{
+        background-color: var(--consentua-main);
+        text-align: center;
+        color: #fff;
+        padding: 2em;
+        max-width: 40%;
+        border-radius: 5px;
+        margin: 0px auto;
+      }
+      .loading{
+        height: 500px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       .pg{
           box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.35);
@@ -59,14 +76,19 @@
         border-bottom: 2px solid #eee;
       }
       .pg .purp article{
-        padding: 1em 0em;
+        /* padding: 1em 0em; */
       }
       .pg .purp paper-toggle-button{
         margin: 1em;
       }
     </style>
-    <dom-repeat items="{{template.PurposeGroups}}">
-      <template>
+
+
+<!-- template -->
+<dom-if if="{{isTemplate}}">
+<template>
+<dom-repeat items="{{template.PurposeGroups}}">
+  <template>
         <div class="pg">
           <h2>[[item.Description]]</h2>
           <p>[[item.Explanation]]</p>
@@ -75,31 +97,51 @@
             <paper-toggle-button class="tgl-binary-all"></paper-toggle-button>
           </span>
           <div class="purp-container">
-          <dom-repeat items="{{item.Purposes}}">
+            <dom-repeat items="{{item.Purposes}}">
             <template>
               <div class="purp">
                 <article>
                   <h3>We will use</h3>
-                  [[item.DataUse]]
+                  <p>[[item.DataUse]]</p>
                   <h3>For the purposes of</h3>
-                  [[item.DataPurpose]]
+                  <p>[[item.DataPurpose]]</p>
                 </article>
                 <paper-toggle-button class="tgl-binary" on-change="_setConsent" data-id$="{{item.Id}}"></paper-toggle-button>
               </div>
             </template>
           </dom-repeat>
-          </div>
         </div>
-      </template>
-    </dom-repeat>
-  </template>
+      </div>
+    </template>
+  </dom-repeat>
+</template>
+</dom-if>
 
-  <script>
-    /**
-     * @customElement
-     * @polymer
-     */
-    class UiPolymerApp extends Polymer.Element {
+  <!-- loading -->
+  <!-- <dom-if if="{{loading}}">
+    <template>
+      <div class="loading"><p>Loading Consentua..</p></div>
+    </template>
+  </dom-if> -->
+  <!-- there is no template -->
+  <dom-if if="{{!isTemplate}}">
+    <template>
+      <div class="no-template">
+        <iron-icon icon="consentua-icons:mood-bad"></iron-icon>
+        <p>No consent templates found</p>
+        <iron-icon icon="consentua-icons:logo"></iron-icon>
+      </div>
+    </template>
+  </dom-if>
+
+</template>
+
+<script>
+  /**
+   * @customElement
+   * @polymer
+   */
+  class UiPolymerApp extends Polymer.Element {
       static get is() {
         return 'ui-polymer-app';
       }
@@ -108,6 +150,16 @@
           template: {
             type: Object,
             notify: true
+          },
+          isTemplate: {
+            type: Boolean,
+            notify: true,
+            value: false
+          },
+          loading: {
+            type: Boolean,
+            notify: true,
+            value: true
           }
         };
       }
@@ -128,8 +180,11 @@
       _consentuaLoader() {
         console.log("----------------------consentua on polymer ready!!-------------------")
         console.log("Consentua is ready", window.consentua);
-        this.template = window.consentua.template;
-        console.log(this.template);
+        if(window.consentua.template){
+          this.template = window.consentua.template;
+          this.isTemplate = true;
+          console.log(this.template);
+        }
         // testing stuff
         // window.consentua.setConsent([1,2,3,4,5,6,7,134,135], true)
         // let consent = window.consentua.getConsent();     
