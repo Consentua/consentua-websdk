@@ -1,0 +1,154 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+
+
+
+<dom-module id="ui-polymer-app">
+  <template>
+    <style>
+      :host {
+        --consentua-main:#9A1144;
+        --main-background-color: #e1e1e1;
+        --green-l:#4CAF50;
+        --green-d:#265728;
+        font-family: 'Open Sans', sans-serif;
+        width: 100%;
+        max-width: 500px;
+        margin: 5px auto;
+        height: 100%;
+        display: block;
+        background-color: var(--main-background-color);
+        padding: 1em 0em;
+        --paper-toggle-button-checked-bar-color: var(--green-l);
+        --paper-toggle-button-checked-button-color: var(--green-l);
+        --paper-toggle-button-checked-ink-color: var(--green-l);
+      }
+      paper-button{
+        background-color: var(--green-l);
+        color: #fff;
+        text-transform: capitalize;
+        min-width: 22%;
+      }
+      .pg{
+          box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.35);
+        height: 670px;
+        padding: 1em;
+        margin: 0em 1em;
+        background: #fff;
+        border-radius: 5px;
+      }
+      .all-toggle-container{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .all-toggle-container paper-toggle-button{
+        align-self: flex-end;
+        margin: 1em;
+      }
+      .pg .purp-container{
+        height: 500px;
+        overflow-y: auto;
+        border-top: 2px solid #eee;
+      }
+      .pg .purp{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #eee;
+      }
+      .pg .purp article{
+        padding: 1em 0em;
+      }
+      .pg .purp paper-toggle-button{
+        margin: 1em;
+      }
+    </style>
+    <dom-repeat items="{{template.PurposeGroups}}">
+      <template>
+        <div class="pg">
+          <h2>[[item.Description]]</h2>
+          <p>[[item.Explanation]]</p>
+          <span class="all-toggle-container">
+            <p>Allow all purposes</p>
+            <paper-toggle-button class="tgl-binary-all"></paper-toggle-button>
+          </span>
+          <div class="purp-container">
+          <dom-repeat items="{{item.Purposes}}">
+            <template>
+              <div class="purp">
+                <article>
+                  <h3>We will use</h3>
+                  [[item.DataUse]]
+                  <h3>For the purposes of</h3>
+                  [[item.DataPurpose]]
+                </article>
+                <paper-toggle-button class="tgl-binary" on-change="_setConsent" data-id$="{{item.Id}}"></paper-toggle-button>
+              </div>
+            </template>
+          </dom-repeat>
+          </div>
+        </div>
+      </template>
+    </dom-repeat>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class UiPolymerApp extends Polymer.Element {
+      static get is() {
+        return 'ui-polymer-app';
+      }
+      static get properties() {
+        return {
+          template: {
+            type: Object,
+            notify: true
+          }
+        };
+      }
+      constructor() {
+        super();
+        this._boundListener = this._consentuaLoader.bind(this);
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        document.body.addEventListener('consentua-ready', this._boundListener);
+      }
+
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        document.body.removeEventListener('consentua-ready', this._boundListener);
+      }
+      _consentuaLoader() {
+        console.log("----------------------consentua on polymer ready!!-------------------")
+        console.log("Consentua is ready", window.consentua);
+        this.template = window.consentua.template;
+        console.log(this.template);
+        // testing stuff
+        // window.consentua.setConsent([1,2,3,4,5,6,7,134,135], true)
+        // let consent = window.consentua.getConsent();     
+        // let arr = this.template.PurposeGroups[0].Purposes;
+        // let keys = Object.keys(consent);
+        // for (let i = 0; i < keys.length; i++) {
+        //   var x = keys[i];
+        //   console.log(keys[i]);
+        // arr.find(x => x.Id === keys[i]).Consent = 
+        // console.log(arr.find(x => x.Id == x).DataPurpose)
+        // }
+
+        this.disconnectedCallback(); //stop listening for consentua-ready
+      }
+      _setConsent(e) {
+        window.consentua.setConsent([e.target.dataset.id], e.target.checked)
+      }
+    }
+
+    window.customElements.define(UiPolymerApp.is, UiPolymerApp);
+  </script>
+</dom-module>
