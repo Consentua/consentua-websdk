@@ -1,10 +1,21 @@
 Expose via window.consentua
 
-### wishlist for ui-polymer
-* needs to be able to handle multiple templates, will be better to use dynamic polymer pages for each template than load new instance of the page with each template
-* remove `getConsent()` in favor of having the consent already attached to the purposes eg `template.PurposeGroups[0].Purposes[0].Consent`
+## ui-polymer
+
+### notes:
+* has 3 routes
+  * `/ui-polymer#/binary`
+  * `/ui-polymer#/linear`
+  * `/ui-polymer#/mixed` for templates with more than 1 pg, can be mixed
+  * `/ui-polymer#/none` will display err message 'no templates found :('
+
+### SDK feature requests:
+* ~~needs to be able to handle multiple templates, will be better to use dynamic polymer pages for each template than load new instance of the page with each template~~
+* remove `getConsent()` in favor of having the consent already attached to the purposes eg `template.PurposeGroups[0].Purposes[0].Consent = true`
   * if not possible then please make the object returned by `getConsent()` not use the id's as the object keys eg use `{purposeId: 1, consent: true}`
 * add seperate `setPgConsent(pg, consent)` for setting entire purpose group consents t/f
+
+## consentua-sdk-js
 
 Supply:
 * information about current request

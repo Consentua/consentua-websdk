@@ -1,18 +1,21 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 
 <link rel="import" href="./consentua-icons.html">
+<link rel="import" href="./consentua-binary-selector.html">
+<link rel="import" href="./consentua-linear-selector.html">
 
 <dom-module id="ui-polymer-app">
   <template>
     <style>
-      :host {
-        --consentua-main:#9A1144;
+       :host {
+        --consentua-main: #9A1144;
         --main-background-color: #e1e1e1;
-        --green-l:#4CAF50;
-        --green-d:#265728;
+        --green-l: #4CAF50;
+        --green-d: #265728;
         font-family: 'Open Sans', sans-serif;
         width: 100%;
         max-width: 500px;
@@ -25,13 +28,15 @@
         --paper-toggle-button-checked-button-color: var(--green-l);
         --paper-toggle-button-checked-ink-color: var(--green-l);
       }
-      paper-button{
+
+      paper-button {
         background-color: var(--green-l);
         color: #fff;
         text-transform: capitalize;
         min-width: 22%;
       }
-      .no-template{
+
+      .no-template {
         background-color: var(--consentua-main);
         text-align: center;
         color: #fff;
@@ -40,108 +45,95 @@
         border-radius: 5px;
         margin: 0px auto;
       }
-      .loading{
+
+      .loading {
         height: 500px;
         text-align: center;
         display: flex;
         justify-content: center;
         align-items: center;
       }
-      .pg{
-          box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.35);
+
+      .mixed-container {
+        background-color: #fff;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.35);
         height: 670px;
         padding: 1em;
-        margin: 0em 1em;
-        background: #fff;
+        margin: 0.5em;
         border-radius: 5px;
       }
-      .all-toggle-container{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+
+      .mixed-groups-container {
+        padding: 1.5em;
+        background-color: #ddd;
+        overflow-y: scroll;
+        max-height: 500px;
       }
-      .all-toggle-container paper-toggle-button{
-        align-self: flex-end;
-        margin: 1em;
-      }
-      .pg .purp-container{
-        height: 500px;
-        overflow-y: auto;
-        border-top: 2px solid #eee;
-      }
-      .pg .purp{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid #eee;
-      }
-      .pg .purp article{
-        /* padding: 1em 0em; */
-      }
-      .pg .purp paper-toggle-button{
-        margin: 1em;
+
+      .mixed-groups-container>div {
+        margin-top: 40px;
       }
     </style>
 
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:view" data="{{routeData}}" tail="{{subroute}}">
+    </app-route>
 
-<!-- template -->
-<dom-if if="{{isTemplate}}">
-<template>
-<dom-repeat items="{{template.PurposeGroups}}">
-  <template>
-        <div class="pg">
-          <h2>[[item.Description]]</h2>
-          <p>[[item.Explanation]]</p>
-          <span class="all-toggle-container">
-            <p>Allow all purposes</p>
-            <paper-toggle-button class="tgl-binary-all"></paper-toggle-button>
-          </span>
-          <div class="purp-container">
-            <dom-repeat items="{{item.Purposes}}">
-            <template>
-              <div class="purp">
-                <article>
-                  <h3>We will use</h3>
-                  <p>[[item.DataUse]]</p>
-                  <h3>For the purposes of</h3>
-                  <p>[[item.DataPurpose]]</p>
-                </article>
-                <paper-toggle-button class="tgl-binary" on-change="_setConsent" data-id$="{{item.Id}}"></paper-toggle-button>
-              </div>
+    <iron-pages selected="[[routeData.view]]" attr-for-selected="name" fallback-selection="none">
+      <!-- Single binary pg -->
+      <div name="binary">
+        <consentua-binary-selector purpose-group="[[_getFirstPg(template.PurposeGroups)]]"></consentua-binary-selector>
+      </div>
+      <!-- Single linear pg -->
+      <div name="linear">
+        <consentua-linear-selector purpose-group="[[_getFirstPg(template.PurposeGroups)]]"></consentua-linear-selector>
+      </div>
+      <!-- Mixed/many pg -->
+      <div name="mixed">
+        <div class="mixed-container">
+          <p>[[template.Question]]</p>
+          <p>[[template.Explanation]]</p>
+          <section class="mixed-groups-container">
+            <template is="dom-repeat" items="[[template.PurposeGroups]]">
+              <template is="dom-if" if="{{_isLinear(item.DisplayType)}}">
+                <div>
+                  <consentua-linear-selector purpose-group="[[item]]"></consentua-linear-selector>
+                </div>
+              </template>
+              <template is="dom-if" if="{{_isBinary(item.DisplayType)}}">
+                <div>
+                  <consentua-binary-selector purpose-group="[[item]]"></consentua-binary-selector>
+                </div>
+              </template>
             </template>
-          </dom-repeat>
+          </section>
         </div>
       </div>
-    </template>
-  </dom-repeat>
-</template>
-</dom-if>
-
-  <!-- loading -->
-  <!-- <dom-if if="{{loading}}">
-    <template>
-      <div class="loading"><p>Loading Consentua..</p></div>
-    </template>
-  </dom-if> -->
-  <!-- there is no template -->
-  <dom-if if="{{!isTemplate}}">
-    <template>
-      <div class="no-template">
+      <!-- no template/pg -->
+      <div name="none" class="no-template">
         <iron-icon icon="consentua-icons:mood-bad"></iron-icon>
         <p>No consent templates found</p>
         <iron-icon icon="consentua-icons:logo"></iron-icon>
       </div>
+    </iron-pages>
+
+
+    <!-- loading -->
+    <!-- <dom-if if="{{loading}}">
+    <template>
+      <div class="loading"><p>Loading Consentua..</p></div>
     </template>
-  </dom-if>
+  </dom-if> -->
+    <!-- there is no template -->
 
-</template>
+  </template>
 
-<script>
-  /**
-   * @customElement
-   * @polymer
-   */
-  class UiPolymerApp extends Polymer.Element {
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class UiPolymerApp extends Polymer.Element {
       static get is() {
         return 'ui-polymer-app';
       }
@@ -160,6 +152,18 @@
             type: Boolean,
             notify: true,
             value: true
+          },
+          route: {
+            type: Object,
+            notify: true
+          },
+          routeData: {
+            type: Object,
+            notify: true
+          },
+          subroute: {
+            type: Object,
+            notify: true
           }
         };
       }
@@ -180,27 +184,31 @@
       _consentuaLoader() {
         console.log("----------------------consentua on polymer ready!!-------------------")
         console.log("Consentua is ready", window.consentua);
-        if(window.consentua.template){
+        if (window.consentua.template) {
           this.template = window.consentua.template;
           this.isTemplate = true;
           console.log(this.template);
+        } else{
+          this.routeData.view = "none";
         }
-        // testing stuff
-        // window.consentua.setConsent([1,2,3,4,5,6,7,134,135], true)
-        // let consent = window.consentua.getConsent();     
-        // let arr = this.template.PurposeGroups[0].Purposes;
-        // let keys = Object.keys(consent);
-        // for (let i = 0; i < keys.length; i++) {
-        //   var x = keys[i];
-        //   console.log(keys[i]);
-        // arr.find(x => x.Id === keys[i]).Consent = 
-        // console.log(arr.find(x => x.Id == x).DataPurpose)
-        // }
-
         this.disconnectedCallback(); //stop listening for consentua-ready
       }
-      _setConsent(e) {
-        window.consentua.setConsent([e.target.dataset.id], e.target.checked)
+      _getFirstPg(pg) {
+        return pg[0];
+      }
+      _isLinear(dt) {
+        if (dt == 'linear' || dt == 'Linear' || dt == 'LINEAR') {
+          return true;
+        } else {
+          return false;
+        }
+      }
+      _isBinary(dt) {
+        if (dt == 'binary' || dt == 'Binary' || dt == 'BINARY') {
+          return true;
+        } else {
+          return false;
+        }
       }
     }
 
