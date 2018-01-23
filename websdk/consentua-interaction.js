@@ -17,7 +17,7 @@ var ConsentuaController = function()
     console.log("Waiting for consentua template...");
     comms.send('consentua-waiting', false, init);
 
-    var consents;
+    var consents = {};
 
     // The parent window sends back a message that contains information about the
     // consent template to be used; this handles it
@@ -83,9 +83,17 @@ var ConsentuaController = function()
 
     /**
      * Get current consent settings for all purposes in the template
+     * Format is:
+     *             [{purposeId: x, consent: true}, ...]
      */
     self.getConsent = function(){
-        return consents;
+        var cmodel = [];
+
+        for(var k in consents){
+            cmodel.push({purposeId: i, consent: consents[k]});
+        }
+
+        return cmodel;
     }
 
 
@@ -116,6 +124,12 @@ var ConsentuaController = function()
             bconsented = true;
         } else {
             bconsented = false;
+        }
+
+        // Allow a single pgid to be supplied instead of an array
+        if(Number.isInteger(purposeGroupIds))
+        {
+            purposeGroupIds = [purposeGroupIds];
         }
 
         for(var i in purposeGroupIds)

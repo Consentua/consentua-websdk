@@ -30,8 +30,8 @@
 			  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
 			  crossorigin="anonymous"></script>
 
-    <!-- This is the main library; all consentua interactions need it
-         ./websdk/ is made available automatically
+    <!-- This is the main library; eventually it should be loaded from the
+         online web sdk server.
     -->
     <script src="../websdk/consentua-interaction.js"></script>
     <script src="../websdk/comms.js"></script>
@@ -46,6 +46,9 @@
      *
      * Once that event has been triggered, you'll be able to access window.consentua which is provides
      * an interface to the rest of the consentua service.
+     *
+     * Interactions shouldn't need to interact with  the consentua API directly; window.consentua should
+     * provide everything that's required. If it doesn't, file a bug report!
      */
     $(document).on('consentua-ready', function(){
 
