@@ -76,16 +76,16 @@ function loadInteraction(template, userid)
         switch(template.DisplayType.toLowerCase())
         {
             case 'linear':
-                template.ixUrl = '/ui-polymer#/linear';
+                template.ixUrl = '/ui-polymer/build/default#/linear';
                break;
             case 'binary':
-                template.ixUrl = '/ui-polymer#/binary';
+                template.ixUrl = '/ui-polymer/build/default#/binary';
                break;
             case 'mixed':
-                template.ixUrl = '/ui-polymer#/mixed';
+                template.ixUrl = '/ui-polymer/build/default#/mixed';
                 break;
             default:
-                template.ixUrl = '/ui-polymer#/none';
+                template.ixUrl = '/ui-polymer/build/default#/none';
         }
 
     }

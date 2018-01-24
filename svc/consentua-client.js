@@ -5,7 +5,7 @@
 
 function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
-    var baseurl = 'https://test.consentua.com';
+    var baseurl = 'https://consentuadevsvcapi.azurewebsites.net';
 
     var self = this;
     var templates = false;
@@ -183,7 +183,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
     self.testIfUserExists = function(uid){
         var def = $.Deferred();
 
-        self.get('/user/GetServiceUser', {identifier: uid}).done(function(data){
+        self.get('/serviceuser/GetServiceUser', {identifier: uid}).done(function(data){
             self.uidmap[uid] = data.UserId;
             def.resolve(true, data.UserId);
         }).fail(function(xhr, status){
@@ -203,7 +203,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
         console.log("Create", uid);
 
-        self.postQS('/user/AddUserToService', {identifier: uid}).done(function(result){
+        self.postQS('/serviceuser/AddUserToService', {identifier: uid}).done(function(result){
             self.uidmap[uid] = result.UserId;
             def.resolve(result.UserId);
         });
@@ -247,8 +247,9 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
         var def = $.Deferred();
         self.postBody('/userconsent/GetConsents', {"UserId": self.uidmap[uid]}).done(function(response){
-            if(response.success)
+            if(response.Success){
                 def.resolve(response.Consent.Purposes);
+            }
             else
                 def.resolve({});
         });
@@ -274,7 +275,6 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang){
                     "Purposes": []
                 }
         };
-
         for(var pid in purposes){
             model.Consent.Purposes.push({ConsentTemplateId: templateid, PurposeId:pid, Consent: purposes[pid]});
         }

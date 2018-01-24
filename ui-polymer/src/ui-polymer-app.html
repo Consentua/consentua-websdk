@@ -82,11 +82,11 @@
     <iron-pages selected="[[routeData.view]]" attr-for-selected="name" fallback-selection="none">
       <!-- Single binary pg -->
       <div name="binary">
-        <consentua-binary-selector purpose-group="[[_getFirstPg(template.PurposeGroups)]]"></consentua-binary-selector>
+        <consentua-binary-selector purpose-group="[[_getFirstPg(template.PurposeGroups)]]" consents="[[consents]]"></consentua-binary-selector>
       </div>
       <!-- Single linear pg -->
       <div name="linear">
-        <consentua-linear-selector purpose-group="[[_getFirstPg(template.PurposeGroups)]]"></consentua-linear-selector>
+        <consentua-linear-selector purpose-group="[[_getFirstPg(template.PurposeGroups)]]" consents="[[consents]]"></consentua-linear-selector>
       </div>
       <!-- Mixed/many pg -->
       <div name="mixed">
@@ -97,12 +97,12 @@
             <template is="dom-repeat" items="[[template.PurposeGroups]]">
               <template is="dom-if" if="{{_isLinear(item.DisplayType)}}">
                 <div>
-                  <consentua-linear-selector purpose-group="[[item]]"></consentua-linear-selector>
+                  <consentua-linear-selector purpose-group="[[item]]" consents="[[consents]]"></consentua-linear-selector>
                 </div>
               </template>
               <template is="dom-if" if="{{_isBinary(item.DisplayType)}}">
                 <div>
-                  <consentua-binary-selector purpose-group="[[item]]"></consentua-binary-selector>
+                  <consentua-binary-selector purpose-group="[[item]]" consents="[[consents]]"></consentua-binary-selector>
                 </div>
               </template>
             </template>
@@ -142,6 +142,11 @@
           template: {
             type: Object,
             notify: true
+          },
+          consents: {
+            type: Object,
+            notify: true,
+            value: []
           },
           isTemplate: {
             type: Boolean,
@@ -187,8 +192,10 @@
         if (window.consentua.template) {
           this.template = window.consentua.template;
           this.isTemplate = true;
+          this.consents = window.consentua.getConsent();
           console.log(this.template);
-        } else{
+          console.log(this.consents)
+        } else {
           this.routeData.view = "none";
         }
         this.disconnectedCallback(); //stop listening for consentua-ready

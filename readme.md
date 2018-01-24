@@ -1,8 +1,28 @@
 Expose via window.consentua
 
+## developing
+install polymer dependantcies
+```
+#ui-polymer/
+bower install
+```
+then host main directory on port 8080
+
+## deploying
+make sure you have `cf`  adn `polymer-cli` cli's installed
+```
+#ui-polymer/
+$ polymer build
+```
+```
+$ cf login
+$ cf push websdk
+```
+
 ## ui-polymer
 
 ### notes:
+* currently only 100% works with a SINGLE BINARY template
 * has 3 routes
   * `/ui-polymer#/binary`
   * `/ui-polymer#/linear`
@@ -10,9 +30,9 @@ Expose via window.consentua
   * `/ui-polymer#/none` will display err message 'no templates found :('
 
 ### SDK feature requests:
-* ~~needs to be able to handle multiple templates, will be better to use dynamic polymer pages for each template than load new instance of the page with each template~~
+* ~~needs to be able to handle multiple templates, will be better to use dynamic polymer pages for each template than load new instance of the page with each template
 * remove `getConsent()` in favor of having the consent already attached to the purposes eg `template.PurposeGroups[0].Purposes[0].Consent = true`
-  * if not possible then please make the object returned by `getConsent()` not use the id's as the object keys eg use `{purposeId: 1, consent: true}`
+  * if not possible then please make the object returned by `getConsent()` not use the id's as the object keys eg use `{purposeId: 1, consent: true}`~~
 * add seperate `setPgConsent(pg, consent)` for setting entire purpose group consents t/f
 
 ## consentua-sdk-js

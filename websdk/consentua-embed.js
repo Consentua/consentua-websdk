@@ -9,14 +9,14 @@
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
  */
-function ConsentuaUIWrapper(iframe, clientid, templateid, serviceid, servicekey, cb_set)
+function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servicekey, cb_set)
 {
     var self = this;
 
     //var sdkbase = "https://websdk.consentua.com/";
     var sdkbase = "http://127.0.0.1:8080/svc/";
 
-    iframe.setAttribute('src', sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid )
+    iframe.setAttribute('src', sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid + "&uid=" + uid)
 
     var idoc = iframe.contentWindow.docuent;
 

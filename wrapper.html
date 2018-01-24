@@ -30,13 +30,12 @@
     var sid = '1'; // Consentua service ID
     var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
     var tid = '1'; // Template ID
+    var uid = 'user123421';
 
     // TODO: Generate the iframe programatically - adjacent to this script element
 
     var iframe = document.getElementById('consentua-widget');
-    var cwrap = new ConsentuaUIWrapper(iframe, cid, tid, sid, skey, function(){
-	alert("Consentua done!");
-    });
+    var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, function(){});
   </script>
 
 </body>

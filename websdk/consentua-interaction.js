@@ -2,9 +2,8 @@
  This is the library for consentua *interactions* to use. It provides a
  framework and library to communicate with the rest of the SDK
 */
-var ConsentuaController = function()
-{
-    if(!window.parent){
+var ConsentuaController = function () {
+    if (!window.parent) {
         alert("Parent window is not available; you probably need to use the test wrapper when developing with the Consentua SDK.");
         return;
     }
@@ -21,76 +20,81 @@ var ConsentuaController = function()
 
     // The parent window sends back a message that contains information about the
     // consent template to be used; this handles it
-    function init(msg)
-    {
+    function init(msg) {
         console.log("Received consentua bootstrap info", msg);
 
         // TODO: Check that the provided template is valid
         self.template = msg.message.template;
 
         // TODO: Add helper methods to the template
-        self.template.getPurposeGroups = function(){
+        self.template.getPurposeGroups = function () {
             return self.template.PurposeGroups;
         }
 
-        self.template.getPurposeGroupByID = function(id){
-
-            if(typeof self.template.PurposeGroups[id] == "undefined"){
+        self.template.getPurposeGroupByID = function (id) {
+            let o = id - 1;
+            if (typeof self.template.PurposeGroups[o] == "undefined") {
                 return false;
             }
-
-            return self.template.PurposeGroups[id];
+            return self.template.PurposeGroups[o];
         }
 
         // Set up list of what has been consented to
-        consents = msg.message.consents;
-
-        // check that consents has a field for every purpose
-        var pgs = self.template.getPurposeGroups();
-        for(var pgid in pgs){ // Purposes are grouped into purpose groups
-            for(var pid in pgs[pgid].Purposes){
-                purposeId = pgs[pgid].Purposes[pid].Id;
-                consents[purposeId] = typeof consents[purposeId] == "undefined" ? null : consents[purposeId];
-            }
+        var consentMsg = msg.message.consents;
+        for (var pgid in consentMsg) {
+            consents[consentMsg[pgid].PurposeId] = consentMsg[pgid].Consent;
         }
+        // consents = msg.message.consents;
+        // // check that consents has a field for every purpose
+        // var pgs = self.template.getPurposeGroups();
+        // for(var pgid in pgs){ // Purposes are grouped into purpose groups
+        //     for(var pid in pgs[pgid].Purposes){
+        //         purposeId = pgs[pgid].Purposes[pid].Id;
+        //         consents[purposeId] = typeof consents[purposeId] == "undefined" ? null : consents[purposeId];
+        //     }
+        // }
 
         // Tell the current document that the consentua environment is ready
         // This should trigger interaction setup; i.e. the interaction should be
         // listening for it!
 
         // jQuery
-        if(typeof $ != 'undefined')
-          $(document).trigger('consentua-ready');
+        if (typeof $ != 'undefined')
+            $(document).trigger('consentua-ready');
 
         // and NATIVE
         var event = new Event('consentua-ready');
         document.body.dispatchEvent(event);
 
-        comms.send("consentua-ready", {height: 600}); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
+        comms.send("consentua-ready", {
+            height: 600
+        }); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
     }
 
     /**
      * Check if all values on the template are set to true or false (ie not null)
      */
-     self.isConsentComplete = function(){
-         var pgs = self.template.getPurposeGroups();
-         for(var pgid in pgs){
-             if(pgs[pgid] === null)
+    self.isConsentComplete = function () {
+        var pgs = self.template.getPurposeGroups();
+        for (var pgid in pgs) {
+            if (pgs[pgid] === null)
                 return false;
-         }
-         return true;
-     }
+        }
+        return true;
+    }
 
     /**
      * Get current consent settings for all purposes in the template
      * Format is:
      *             [{purposeId: x, consent: true}, ...]
      */
-    self.getConsent = function(){
+    self.getConsent = function () {
         var cmodel = [];
-
-        for(var k in consents){
-            cmodel.push({purposeId: i, consent: consents[k]});
+        for (var k in consents) {
+            cmodel.push({
+                purposeId: k,
+                consent: consents[k]
+            });
         }
 
         return cmodel;
@@ -111,14 +115,13 @@ var ConsentuaController = function()
      *     BEFORE granting consent to the new group. Otherwise purposes that appear in both will
      *     be marked as non-consented!
      */
-    self.setConsent = function(purposeGroupIds, consented){
-
+    self.setConsent = function (purposeGroupIds, consented) {
         // Make sure consented is a boolean
         var bconsented;
-        if(consented === null) {
+        if (consented === null) {
             bconsented = null;
         }
-        if(typeof consented == "boolean"){
+        if (typeof consented == "boolean") {
             bconsented = consented;
         } else if (consented == 1 || consented == "true") { // Will match 1 or "1"
             bconsented = true;
@@ -127,23 +130,29 @@ var ConsentuaController = function()
         }
 
         // Allow a single pgid to be supplied instead of an array
-        if(Number.isInteger(purposeGroupIds))
-        {
+        if (Number.isInteger(purposeGroupIds)) {
             purposeGroupIds = [purposeGroupIds];
         }
-
-        for(var i in purposeGroupIds)
-        {
-            var pgid = purposeGroupIds[i];
-            var pg = self.template.getPurposeGroupByID(pgid);
-            for(var pid in pg.Purposes)
-            {
-                var p = pg.Purposes[pid];
-                consents[p.Id] = bconsented;
-            }
-        }
-
-        comms.send('consentua-set', {consents: consents, complete: self.isConsentComplete()});
+        consents[purposeGroupIds] = bconsented;
+        // for(var i in purposeGroupIds)
+        // {
+        //     var pgid = purposeGroupIds[i];
+        //     var pg = self.template.getPurposeGroupByID(pgid);
+        //     console.log(pg);
+        //     for(var pid in pg.Purposes)
+        //     {
+        //         var p = pg.Purposes[pid];
+        //         var b = {};
+        //         b[p.Id] = bconsented;
+        //         consents.push(b)
+        //         // consents[p.Id] = bconsented;
+        //     }
+        //     console.log(consents);
+        // }
+        comms.send('consentua-set', {
+            consents: consents,
+            complete: self.isConsentComplete()
+        });
     }
 
     /**
@@ -152,6 +161,6 @@ var ConsentuaController = function()
 
 };
 
-document.addEventListener("DOMContentLoaded", function(){
-  window.consentua = new ConsentuaController();
+document.addEventListener("DOMContentLoaded", function () {
+    window.consentua = new ConsentuaController();
 });
