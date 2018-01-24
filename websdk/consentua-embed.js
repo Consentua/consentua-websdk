@@ -14,7 +14,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
     var self = this;
 
     //var sdkbase = "https://websdk.consentua.com/";
-    var sdkbase = "http://127.0.0.1:8080/svc/";
+    var sdkbase = "https://websdk.mybluemix.net/svc/";
 
     iframe.setAttribute('src', sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid + "&uid=" + uid)
 
@@ -47,7 +47,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
             return;
         }
 
-        if(!event.origin.match(/^https?:\/\/(websdk.consentua.com\/|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
+        if (!event.origin.match(/^https?:\/\/(websdk.mybluemix.net\/|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
         {
             console.error("Message did not come from Consentua Web Service", event.origin);
             return;
