@@ -1,6 +1,8 @@
 Expose via window.consentua
 
-deployed live at [hwebsdk.mybluemix.net](https://websdk.mybluemix.net/wrapper.html)
+deployed live at [websdk.mybluemix.net](https://websdk.mybluemix.net/wrapper.html)
+
+[codepen](https://codepen.io/sideshowjack/pen/bayjGb)
 
 ## developing
 install polymer dependencies
