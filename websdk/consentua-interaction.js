@@ -134,21 +134,7 @@ var ConsentuaController = function () {
             purposeGroupIds = [purposeGroupIds];
         }
         consents[purposeGroupIds] = bconsented;
-        // for(var i in purposeGroupIds)
-        // {
-        //     var pgid = purposeGroupIds[i];
-        //     var pg = self.template.getPurposeGroupByID(pgid);
-        //     console.log(pg);
-        //     for(var pid in pg.Purposes)
-        //     {
-        //         var p = pg.Purposes[pid];
-        //         var b = {};
-        //         b[p.Id] = bconsented;
-        //         consents.push(b)
-        //         // consents[p.Id] = bconsented;
-        //     }
-        //     console.log(consents);
-        // }
+
         comms.send('consentua-set', {
             consents: consents,
             complete: self.isConsentComplete()
@@ -156,8 +142,53 @@ var ConsentuaController = function () {
     }
 
     /**
-     *
-     */
+ * Set all consent
+ *
+ * Consent should be set per purpose GROUP. It can be true (consented), false (not consented) or null (deliberately undefined).
+ * The interaction is considered "complete" from Consentua's point of view once all groups are set to non-null values
+ *
+ * purposeGroupIds: An array of purposegroup IDs from the template
+ * consented: Whether consent is granted, or not, to the specified purpose groups
+ *
+ * NB: When switching between groups it is important to REMOVE consent from the old group
+ *     BEFORE granting consent to the new group. Otherwise purposes that appear in both will
+ *     be marked as non-consented!
+ */
+    self.setPgConsent = function (purposeGroupIds, consented) {
+        // Make sure consented is a boolean
+        var bconsented;
+        if (consented === null) {
+            bconsented = null;
+        }
+        if (typeof consented == "boolean") {
+            bconsented = consented;
+        } else if (consented == 1 || consented == "true") { // Will match 1 or "1"
+            bconsented = true;
+        } else {
+            bconsented = false;
+        }
+
+        // Allow a single pgid to be supplied instead of an array
+        if (Number.isInteger(purposeGroupIds)) {
+            purposeGroupIds = [purposeGroupIds];
+        }
+        for(var i in purposeGroupIds)
+        {
+            var pgid = purposeGroupIds[i];
+            var pg = self.template.getPurposeGroupByID(pgid);
+            console.log(pg);
+            for(var pid in pg.Purposes)
+            {
+                var p = pg.Purposes[pid];
+                var b = {};
+                consents[p.Id] = bconsented;
+            }
+        }
+        comms.send('consentua-set', {
+            consents: consents,
+            complete: self.isConsentComplete()
+        });
+    }
 
 };
 

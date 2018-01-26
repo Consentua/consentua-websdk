@@ -3,4 +3,7 @@ applications:
 - name: websdk
   memory: 512M
   instances: 1
-  buildpack: staticfile_buildpack
+  buildpack: nodejs_buildpack
+  command: npm start
+env:
+  FORCE_HTTPS: true

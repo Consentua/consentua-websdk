@@ -48,7 +48,7 @@
         <p>[[purposeGroup.Explanation]]</p>
         <span class="all-toggle-container">
           <p>Allow all purposes</p>
-          <paper-toggle-button class="tgl-binary-all"></paper-toggle-button>
+          <paper-toggle-button class="tgl-binary-all" on-change="_setPgConsent" data-id$="{{purposeGroup.Id}}"></paper-toggle-button>
         </span>
         <div class="purp-container">
           <dom-repeat items="{{purposeGroup.Purposes}}">
@@ -104,7 +104,11 @@
         }
       }
       _setConsent(e) {
-        window.consentua.setConsent(parseInt(e.target.dataset.id), e.target.checked)
+        window.consentua.setConsent(parseInt(e.target.dataset.id), e.target.checked);
+      }
+
+      _setPgConsent(e){
+        window.consentua.setPgConsent(parseInt(e.target.dataset.id), e.target.checked);
       }
     }
 

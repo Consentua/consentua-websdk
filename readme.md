@@ -1,15 +1,19 @@
 Expose via window.consentua
 
 ## developing
-install polymer dependantcies
+install polymer dependencies
 ```
+npm install
 #ui-polymer/
-bower install
+$ bower install
 ```
-then host main directory on port 8080
+then start the server
+```
+npm start
+```
 
 ## deploying
-make sure you have `cf`  adn `polymer-cli` cli's installed
+make sure you have `cf`  and `polymer-cli` cli's installed
 ```
 #ui-polymer/
 $ polymer build
