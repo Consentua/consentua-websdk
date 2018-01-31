@@ -11,11 +11,8 @@
   <!-- consentua-embed.js is the only code that needs to be included by clients
 
        In production use: http://websdk.consentua.com/websdk/consentua-embed.js
-
    -->
   <script src="websdk/consentua-embed.js" type="text/javascript"></script>
-
-
 
 </head>
 
@@ -33,7 +30,7 @@
     var sid = '1'; // Consentua service ID
     var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
     var tid = '1'; // Template ID
-    var uid = 'user123421';
+    var uid = false;
 
     var cb = function(msg){
         console.log("Consent received from Consentua", msg);

@@ -54,7 +54,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
             return;
         }
 
-        if (!event.origin.match(/^https?:\/\/(websdk.mybluemix.net\/|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
+        if (!event.origin.match(/^https?:\/\/(websdk.consentua.com|websdk.mybluemix.net|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
         {
             console.error("Message did not come from Consentua Web Service", event.origin);
             return;

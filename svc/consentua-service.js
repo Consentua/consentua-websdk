@@ -146,7 +146,8 @@ function loadInteraction(template, userid)
         // Tell the customer site that the consent interaction is complete
         wrapcomms.send('consentua-set', {
           uid: args['uid'],
-          consents: msg.message.consents
+          consents: msg.message.consents,
+          complete: msg.message.complete
         });
     });
 }
