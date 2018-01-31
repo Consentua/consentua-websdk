@@ -13,7 +13,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 {
     var self = this;
 
-    var sdkbase = "https://websdk.consentua.com/";
+    var sdkbase = "https://websdk.consentua.com/svc/";
     //var sdkbase = "https://websdk.mybluemix.net/svc/";
     // var sdkbase = "http://localhost:3000/svc/";
 
