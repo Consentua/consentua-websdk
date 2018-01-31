@@ -17,7 +17,13 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
     var sdkbase = "https://websdk.mybluemix.net/svc/";
     // var sdkbase = "http://localhost:3000/svc/";
 
-    iframe.setAttribute('src', sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid + "&uid=" + uid)
+    var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid;
+
+    if(uid !== false){ // uid is optional, it can be set false to auto-generate in the service
+        url += "&uid=" + uid;
+    }
+
+    iframe.setAttribute('src', url)
 
     var idoc = iframe.contentWindow.docuent;
 
@@ -59,7 +65,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 
         // When the interaction is ready, set the iframe height
         if(msg.type == 'consentua-ready'){
-            // Fit frame to interaction height
+            // TODO: Fit frame to interaction height
             iframe.style.height = '600px';
         }
         // When consent is set, pass it to the callback

@@ -9,7 +9,10 @@
   <link rel="stylesheet" href="wrapper.css">
 
   <!-- consentua-embed.js is the only code that needs to be included by clients
-       it should be included from a "live" version somewhere -->
+
+       In production use: http://websdk.consentua.com/websdk/consentua-embed.js
+
+   -->
   <script src="websdk/consentua-embed.js" type="text/javascript"></script>
 
 
@@ -32,10 +35,14 @@
     var tid = '1'; // Template ID
     var uid = 'user123421';
 
-    // TODO: Generate the iframe programatically - adjacent to this script element
+    var cb = function(msg){
+        console.log("Consent received from Consentua", msg);
+        // You'll probably want to store parts of this message, and update page state to
+        // (for instance) allow form submission to take place
+    };
 
     var iframe = document.getElementById('consentua-widget');
-    var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, function(){});
+    var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, cb);
   </script>
 
 </body>
