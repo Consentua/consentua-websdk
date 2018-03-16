@@ -73,26 +73,27 @@ function loadInteraction(template, userid)
 
         console.log("Interaction URL is not provided by template, picking based on DisplayType", template.DisplayType);
 
+        // TODO test if running localy/prod for urls
         switch(template.DisplayType.toLowerCase())
         {
             case 'linear':
                 console.log('linear detected, navigating to /linear');
-                template.ixUrl = '/ui-polymer#/linear';
+                template.ixUrl = '/ui-polymer/build/default#/linear';
                 
                break;
             case 'binary':
                 console.log('binary detected, navigating to /binary');
-                template.ixUrl = '/ui-polymer#/binary';
+                template.ixUrl = '/ui-polymer/build/default#/binary';
                 
                break;
             case 'mixed':
                 console.log('mixed detected, navigating to /mixed');
-                template.ixUrl = '/ui-polymer#/mixed';
+                template.ixUrl = '/ui-polymer/build/default#/mixed';
                 
                 break;
             default:
                 console.log('none detected, navigating to /none');
-                template.ixUrl = '/ui-polymer#/none';
+                template.ixUrl = '/ui-polymer/build/default#/none';
                 
         }
 
