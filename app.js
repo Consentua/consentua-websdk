@@ -1,13 +1,16 @@
 "use strict";
-var express = require('express');
-
+const express = require('express');
+const cors = require('cors');
 //------------------------------------------------------------------------------
 // Express Setup
 //------------------------------------------------------------------------------
-var app = express();
+const app = express();
 
 //set app port
 app.set('port', process.env.VCAP_APP_PORT || 3000);
+
+// Allow cross-origin HTTP requests
+app.use(cors({origin: '*'}));
 
 // Force HTTPS redirect unless we are using localhost
 app.use(httpsRedirect);

@@ -13,9 +13,9 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 {
     var self = this;
 
-    var sdkbase = "https://websdk.consentua.com/svc/";
+    // var sdkbase = "https://websdk.consentua.com/svc/";
     //var sdkbase = "https://websdk.mybluemix.net/svc/";
-    // var sdkbase = "http://localhost:3000/svc/";
+    var sdkbase = "svc/";
 
     var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid;
 
@@ -54,7 +54,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
             return;
         }
 
-        if (!event.origin.match(/^https?:\/\/(websdk.consentua.com|websdk.mybluemix.net|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
+        if (!event.origin.match(/^https?:\/\/(websdk.consentua.com|websdk.mybluemix.net|localhost(:[0-9]+)|127\.0\.0\.1(:[0-9]+)?)/)) // Allow 127.0.0.1 for development
         {
             console.error("Message did not come from Consentua Web Service", event.origin);
             return;
@@ -66,7 +66,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
         // When the interaction is ready, set the iframe height
         if(msg.type == 'consentua-ready'){
             // TODO: Fit frame to interaction height
-            iframe.style.height = '600px';
+            iframe.style.height = '800px';
         }
         // When consent is set, pass it to the callback
         else if (msg.type == 'consentua-set'){

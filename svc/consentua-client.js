@@ -5,7 +5,7 @@
 
 function ConsentuaClient(clientID, serviceID, serviceKey, lang){
 
-    var baseurl = 'https://consentuadevsvcapi.azurewebsites.net';
+    var baseurl = 'https://test.consentua.com';
 
     var self = this;
     var templates = false;

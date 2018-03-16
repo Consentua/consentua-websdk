@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Consentua websdk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        ol {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            background: #e3e3e3;
+            padding-right: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Consentua websdk</h1>
+
+    <h2>Embedding Consentua into a Web Page</h2>
+
+    <ol>
+
+        <li>Include the Consentua embedding library in the HEAD section of the page</li>
+        <pre>
+        <code>
+            &lt;script src="http://websdk.consentua.com/websdk/consentua-embed.js" type="text/javascript"&gt;&lt;/script&gt;
+        </code>
+        </pre>
+
+        <li>Add an iframe element for the consentua element to be loaded into</li>
+        <pre>
+        <code>
+            &lt;iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 600px; min-height: 700px;"&gt;&lt;/iframe&gt;
+        </code>
+        </pre>
+
+        <li>Add a short script to set up the consentua interaction, and receive the output. jQuery is assumed in the snippet
+            below, but is not required.</li>
+        <pre>
+        <code>
+        &lt;script&gt;
+            // Consentua account details
+            var cid = 'X'; // Consentua customer ID
+            var sid = 'Y'; // Consentua service ID
+            var skey = 'Z'; // Consentua service key
+            var tid = 'Q'; // Consentua consent template ID
+
+            // UID is a string that identifies the user within your own service; set 
+            // this to false to generate one automatically (for instance in flows where 
+            // identity is not yet known, like a newsletter sign-up)
+            var uid = '';
+
+            // When consent is set, it's passed to a callback function
+            // You'll probably want to store parts of this message, and update page state to
+            // (for instance) allow form submission to take place
+            var cb = function (msg) {
+                console.log("Consent received from Consentua", msg);
+            };
+
+            var iframe = document.getElementById('consentua-widget');
+            var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, cb);
+        &lt;/script&gt;
+        </code>    
+        </pre>
+    </ol>
+    <div>
+        <a href="./wrapper.html">Web SDK Demonstrator</a>
+        <br>
+        <a href="http://consentua.com">Consentua.com</a>
+    </div>
+</body>
+
+</html>
