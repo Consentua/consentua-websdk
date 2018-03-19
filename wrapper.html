@@ -1,46 +1,83 @@
 <!doctype html>
 
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
 
   <title>Consentua Web SDK Wrapper</title>
-
-  <link rel="stylesheet" href="wrapper.css">
 
   <!-- consentua-embed.js is the only code that needs to be included by clients
 
        In production use: http://websdk.consentua.com/websdk/consentua-embed.js
    -->
   <script src="websdk/consentua-embed.js" type="text/javascript"></script>
-
+  <style>
+    main {
+      display: flex;
+    }
+    iframe {
+    border: none;
+    }
+    pre {
+      white-space: pre-wrap;
+      background: #e3e3e3;
+      margin-left: 1rem;
+    }
+  </style>
 </head>
 
 <body>
 
   <h1>Consentua Web SDK Demonstrator</h1>
 
-  <p>This page demonstrates how Consentua web components can be embedded into an HTML page to collect consent as part of an HTML form or other web flow.</p>
+  <p>This page demonstrates how Consentua web components can be embedded into an HTML page to collect consent as part of an
+    HTML form or other web flow.</p>
 
-  <!-- This iframe is the equivalent of the WebView in a native app, or iframe in a web app -->
-  <iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 600px; min-height: 700px;"></iframe>
+  <main>
+    <!-- This iframe is the equivalent of the WebView in a native app, or iframe in a web app -->
+    <iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 600px;"></iframe>
 
-  <script>
-    var cid = '2'; // Customer ID
-    var sid = '1'; // Consentua service ID
-    var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
-    var tid = '1'; // Template ID
-    var uid = false;
+    <script>
+      var cid = '2'; // Customer ID
+      var sid = '1'; // Consentua service ID
+      var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
+      var tid = '4'; // Template ID
+      var uid = 'chris@consentua.com';
 
-    var cb = function(msg){
+      var cb = function (msg) {
         console.log("Consent received from Consentua", msg);
         // You'll probably want to store parts of this message, and update page state to
         // (for instance) allow form submission to take place
-    };
+      };
 
-    var iframe = document.getElementById('consentua-widget');
-    var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, cb);
-  </script>
+      var iframe = document.getElementById('consentua-widget');
+      var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, cb);
+    </script>
 
+    <pre>
+    <code>
+        &lt;iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 600px; min-height: 700px;"&gt;&lt;/iframe&gt;
+        
+        &lt;script&gt;
+          var cid = '2'; // Customer ID
+          var sid = '1'; // Consentua service ID
+          var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
+          var tid = '4'; // Template ID
+          var uid = 'chris@consentua.com';
+
+          var cb = function (msg) {
+            console.log("Consent received from Consentua", msg);
+            // You'll probably want to store parts of this message, and update page state to
+            // (for instance) allow form submission to take place
+          };
+
+          var iframe = document.getElementById('consentua-widget');
+          var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, cb);
+        &lt;/script&gt;
+    </code>
+  </pre>
+  </main>
 </body>
+
 </html>

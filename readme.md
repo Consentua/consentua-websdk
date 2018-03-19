@@ -8,7 +8,7 @@ There are two use cases for integrating with Consentua:
 2. Building new interactions for obtaining consent
 
 
-## 1. Embedding Consentua into a Web Page ##
+## 1. Embedding Consentua into a Web Page
 
 
 1. Include the Consentua embedding library in the HEAD section of the page
@@ -47,11 +47,31 @@ There are two use cases for integrating with Consentua:
   </script>
 ```
 
-## 2. Building custom interactions ##
+## 2. Building custom interactions
 
 By default, Consentua chooses an appropriate interaction based on the properties such as the size and complexity of the consent template that's being displayed.
 
+## 3. I want to run my own websdk server/ run locally 
+
+Clone this repo and make sure you have node/npm installed and bower
+
+Install the dependencies
+
 ```
-TODO
+$ npm i
+cd ui-polymer
+$ bower i
 ```
 
+Run the server
+
+```
+$ npm run start
+```
+
+Server will now be running on `http://localhost:3000` with a example page at `/wrapper.html`
+
+
+### Deploying to [insert cloud service here]
+
+TODO

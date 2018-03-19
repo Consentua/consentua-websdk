@@ -11,6 +11,9 @@
 <dom-module id="ui-polymer-app">
   <template>
     <style>
+      body{
+        margin: 0;
+      }
        :host {
         --consentua-main: #9A1144;
         --main-background-color: #e1e1e1;
@@ -19,7 +22,7 @@
         font-family: 'Open Sans', sans-serif;
         width: 100%;
         max-width: 500px;
-        margin: 5px auto;
+        margin: 0px auto;
         height: 100%;
         display: block;
         background-color: var(--main-background-color);
@@ -174,7 +177,7 @@
       }
       constructor() {
         super();
-        this._boundListener = this._consentuaLoader.bind(this);
+        this._boundListener = this._consentuaLoader.bind(this);        
       }
 
       connectedCallback() {
