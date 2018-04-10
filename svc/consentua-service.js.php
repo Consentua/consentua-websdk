@@ -1,3 +1,12 @@
+<?php
+	
+	header("Content-type: text/javascript");
+	
+	// Load environment configuration
+	require 'config.php';
+	
+?>
+
 /**
  * This script is run by the service at websdk.consentua.com
  */
@@ -25,7 +34,8 @@ if(typeof args['s'] == 'undefined' || typeof args['k'] == 'undefined' || typeof 
 var wrapcomms = new WindowComms(window.parent);
 var intcomms = new WindowComms($('#consentua-interaction').get(0).contentWindow);
 
-var c = new ConsentuaClient(args['c'], args['s'], args['k'], 'en');
+var apipath = "<?php echo $_CONF['api-path']; ?>";
+var c = new ConsentuaClient(args['c'], args['s'], args['k'], 'en', apipath);
 
 
 /**

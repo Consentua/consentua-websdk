@@ -3,9 +3,12 @@
  * Async operations return deferred objects, so use .done() to apply callbacks
  */
 
-function ConsentuaClient(clientID, serviceID, serviceKey, lang){
+function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl){
 
-    var baseurl = 'https://test.consentua.com';
+    if(typeof baseurl =='undefined')
+    {
+        baseurl = 'https://test.consentua.com';
+    }
 
     var self = this;
     var templates = false;

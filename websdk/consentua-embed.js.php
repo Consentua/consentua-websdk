@@ -6,6 +6,12 @@
  * the configured interaction via the Web SDK Service
  */
 
+<?php
+
+	header('Content-Type: text/javascript');
+
+?>
+
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
  */
