@@ -13,7 +13,7 @@ There are two use cases for integrating with Consentua:
 
 1. Include the Consentua embedding library in the HEAD section of the page
 ```
-<script src="http://websdk.consentua.com/websdk/consentua-embed.js" type="text/javascript"></script>
+<script src="https://websdk-test.consentua.com/websdk/consentua-embed.js" type="text/javascript"></script>
 ```
 
 2. Add an iframe element for the consentua element to be loaded into
