@@ -29,7 +29,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 
     iframe.setAttribute('src', url)
 
-    var idoc = iframe.contentWindow.docuent;
+    var idoc = iframe.contentWindow.document;
 
     /**
      * Send a custom event of etype to the subDOM
