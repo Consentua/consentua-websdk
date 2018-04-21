@@ -5,25 +5,7 @@
     <meta charset="UTF-8">
     <title>Simple Consent</title>
 
-    <style type="text/css">
-    html, body {
-        margin: 0;
-        padding: 0;
-        font-family: Helvetica, sans-serif;
-    }
-
-    #loading{
-
-    }
-
-    #main{
-      display: none;
-    }
-
-    ol {
-        list-style-type: none;
-    }
-    </style>
+    <link rel="stylesheet" href="default.css" />
 
     <script
 			  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -85,6 +67,11 @@
        */
       $('#loading').hide();
       $('#main').show();
+
+      /**
+       * The UI *MUST* tell the consentua controller when it's ready
+       */
+      window.consentua.ready();
 
       /**
        * As consent is granted or withdrawn, you should send events back to consentua

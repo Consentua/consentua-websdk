@@ -1,0 +1,17 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, sans-serif;
+}
+
+#loading{
+
+}
+
+#main{
+  display: none;
+}
+
+ol {
+    list-style-type: none;
+}

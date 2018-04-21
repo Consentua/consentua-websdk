@@ -10,6 +10,7 @@ switch($_SERVER['SERVER_NAME'])
 		break;
 
 	case 'websdk-dev.consentua.com':
+	case '127.0.0.1':
 		$_CONF['api-path'] = "https://consentuadevsvcapi.azurewebsites.net/";
 		break;
 

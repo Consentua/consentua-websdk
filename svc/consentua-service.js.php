@@ -1,10 +1,10 @@
 <?php
-	
+
 	header("Content-type: text/javascript");
-	
+
 	// Load environment configuration
 	require 'config.php';
-	
+
 ?>
 
 /**
@@ -88,23 +88,23 @@ function loadInteraction(template, userid)
         {
             case 'linear':
                 console.log('linear detected, navigating to /linear');
-                template.ixUrl = '/ui-polymer/build/default#/linear';
-                
-               break;
+                template.ixUrl = '/ui-default/';
+                break;
+
             case 'binary':
                 console.log('binary detected, navigating to /binary');
-                template.ixUrl = '/ui-polymer/build/default#/binary';
-                
-               break;
+                template.ixUrl = '/ui-default/';
+                break;
+
             case 'mixed':
                 console.log('mixed detected, navigating to /mixed');
-                template.ixUrl = '/ui-polymer/build/default#/mixed';
-                
+                template.ixUrl = '/ui-default/';
                 break;
+
             default:
                 console.log('none detected, navigating to /none');
-                template.ixUrl = '/ui-polymer/build/default#/none';
-                
+                template.ixUrl = '/ui-default/';
+
         }
 
     }
@@ -146,10 +146,10 @@ function loadInteraction(template, userid)
         // Fit frame to interaction height
         var iframe = $('#consentua-interaction').get(0);
         var height = msg.message.height + 20;
-        iframe.style.height = '750px'; // The interaction should tell us how high it wants to be
+        iframe.style.height = height + 'px';
 
         // Tell the embedding page, too
-        wrapcomms.send('consentua-ready', {height: '750px', uid: userid});
+        wrapcomms.send('consentua-ready', {height: height, uid: userid});
     });
 
     /**

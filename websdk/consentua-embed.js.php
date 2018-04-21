@@ -19,7 +19,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 {
     var self = this;
 
-    var sdkbase = "https://<?php echo $_SERVER['SERVER_NAME']; ?>/svc/";
+    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
 
     var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid;
 
@@ -69,8 +69,8 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 
         // When the interaction is ready, set the iframe height
         if(msg.type == 'consentua-ready'){
-            // TODO: Fit frame to interaction height
-            iframe.style.height = '800px';
+            console.log("Embed is ready", msg);
+            iframe.style.height = (msg.message.height + 20) + 'px';
         }
         // When consent is set, pass it to the callback
         else if (msg.type == 'consentua-set'){
