@@ -28,7 +28,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl){
                 return;
             }
             self.accessToken = data.Token;
-            console.log("Logged in to Consentua service account", self.accessToken);
+            console.debug("Logged in to Consentua service account", self.accessToken);
             deferred.resolve();
         };
 
@@ -121,7 +121,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl){
             data.Token = self.accessToken;
         }
 
-        console.log("PostBody", data);
+        console.debug("PostBody", data);
 
         return $.ajax({
             type: 'POST',
@@ -222,7 +222,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl){
 
          var def = $.Deferred();
 
-         console.log("Test if user exists", uid);
+         console.debug("Test if user exists", uid);
          self.testIfUserExists(uid).done(function(exists, userid){
 
              if(exists) {

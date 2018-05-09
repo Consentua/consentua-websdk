@@ -10,6 +10,8 @@
 /**
  * This script is run by the service at websdk.consentua.com
  */
+
+console.log("Service loaded");
 $().ready(function(){
 
 // Parse info from hash
@@ -104,7 +106,7 @@ function loadInteraction(template, userid)
             default:
                 console.log('none detected, navigating to /none');
                 template.ixUrl = '/ui-default/';
-
+				break;
         }
 
     }

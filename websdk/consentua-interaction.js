@@ -26,12 +26,34 @@ var ConsentuaController = function () {
         self.setTemplate(msg.message.template);
 
         // Set up list of what has already been consented to
+        // Only do this for purposes that appear in the template
         var consentMsg = msg.message.consents;
 
-        var consents = [];
-        for (var pgid in self.template.getPurposeGroups()) {
-            consents[consentMsg[pgid].PurposeId] = typeof consentMsg[pgid] == "undefined" ? null : consentMsg[pgid].Consent;
+        // Flatten the initial consent list
+        var consentList = {};
+        for(var i in consentMsg)
+        {
+            var c = consentMsg[i];
+            consentList[c.PurposeId] = c.Consent;
         }
+
+        consents = {};
+
+        // Iterate each purpose group in the template
+        var pgs = self.template.getPurposeGroups();
+        for (var pgid in pgs) {
+
+            var pg = pgs[pgid];
+
+            // Then each purpose in the group
+            for(var i in pg.Purposes)
+            {
+                var pid = pg.Purposes[i].Id;
+                consents[pid] = typeof consentList[pid] == "undefined" ? null : consentList[pid];
+            }
+        }
+
+        console.log("Initial consent settings", consentList, consents);
 
         /**
          * Setup window.consentua.ready()
@@ -64,9 +86,6 @@ var ConsentuaController = function () {
         // and NATIVE
         var event = new Event('consentua-ready');
         document.body.dispatchEvent(event);
-
-
-
     }
 
     /**
@@ -133,6 +152,54 @@ var ConsentuaController = function () {
         return cmodel;
     }
 
+    /**
+     * Get consent setting for a single purpose
+     */
+    self.getPurposeConsent = function(purposeId)
+    {
+        return typeof consents[purposeId] == 'undefined' ? null : consents[purposeId];
+    }
+
+    /**
+     * Get all consent settings for a purpose group
+        {
+            purposeId1: true,
+            purposeId2: null,
+            purposeId3: false
+        }
+     */
+     self.getPgConsent = function (purposeGroupId)
+     {
+         var pg = self.template.getPurposeGroupByID(purposeGroupId);
+
+         var out = {};
+
+         for(var i in pg.Purposes)
+         {
+             var pid = pg.Purposes[i].Id;
+             out[pid] = self.getPurposeConsent(pid);
+         }
+
+         return out;
+     }
+
+     /**
+      * Check if we have consent to every purpose in the given purpose group(s)
+      * pgid: A purpose group ID, or array of purpose group IDs
+      */
+     self.isConsentedGroup = function (purposeGroupId)
+     {
+         var c = self.getPgConsent(purposeGroupId);
+         console.log("Check consent on group", purposeGroupId, c);
+
+         for(var i in c)
+         {
+             if(c[i] !== true)
+                 return false;
+         }
+
+         return true;
+     }
 
     /**
      * Set consent for a purpose group
@@ -186,6 +253,64 @@ var ConsentuaController = function () {
             complete: self.isConsentComplete()
         });
     }
+
+    /**
+     * i18n
+     *
+     * Interactions often need to use custom strings, but we'd like them to benefit from the language settings
+     * that are set in the consent template (and possibly from a library of pre-translated strings, too).
+     * These methods allow strings to be registered in different languages; and then retrieved in whatever
+     * language the template itself is using.
+     */
+
+      /**
+       * Get the language for the current template; this is the language that strings will be returned in, if possible
+       */
+      self.getLanguage = function()
+      {
+          return self.template.Language;
+      }
+
+     /**
+      * Add strings to the dictionary; id is a unique identifier for the set of strings. strings is an object
+      * in the form
+      *
+      *       {'en': 'a string in english', 'fr': 'A string in french'}
+      *
+      * The first registered string is used in the event that no translation is available. Multiple calls to
+      * addString for the same ID can be used to add additional translations.
+      */
+     var i18n = {};
+
+     self.addString = function(id, strings)
+     {
+         if(typeof i18n[id] == 'undefined')
+         {
+             i18n[id] = {};
+         }
+
+         for(var lang in strings)
+         {
+             i18n[id][lang] = strings[lang];
+         }
+     }
+
+     self.getString = function(id)
+     {
+         var lang = self.getLanguage();
+
+         if(typeof i18n[id] == 'undefined')
+         {
+            return "[Unknown string '" + id + "']";
+         }
+
+         if(typeof i18n[id][lang] == 'undefined')
+         {
+             return i18n[id][Object.keys(i18n[id])[0]];
+         }
+
+         return i18n[id][lang];
+     }
 
 };
 

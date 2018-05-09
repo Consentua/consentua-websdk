@@ -22,7 +22,7 @@ function WindowComms(targetWindow)
             replyHandlers[msgId] = msgReplyHandler;
         }
 
-        console.log("Send", msgType, msgPayload);
+        console.debug("Send", msgType, msgPayload);
 
         targetWindow.postMessage({type: msgType, id: msgId, message:msgPayload}, "*"); };
 
@@ -51,7 +51,7 @@ function WindowComms(targetWindow)
         }
         else
         {
-            console.error("No handler for received message", msg);
+            console.debug("No handler for received message", msg);
         }
     };
 
@@ -68,7 +68,7 @@ function WindowComms(targetWindow)
             replyHandlers[msg.id](msg);
         }
         else {
-          console.error("Received an unexpected reply (no reply handler is available)", msg);
+          console.debug("Received an unexpected reply (no reply handler is available)", msg);
         }
     });
 

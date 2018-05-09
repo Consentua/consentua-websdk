@@ -1,5 +1,5 @@
-Consentua Web Integrations
-==========================
+Consentua Web Integration
+=========================
 
 This repository contains everything (and more!) that's required to integrate Consentua into web pages.
 
@@ -8,7 +8,7 @@ There are two use cases for integrating with Consentua:
 2. Building new interactions for obtaining consent
 
 
-## 1. Embedding Consentua into a Web Page
+## Embedding Consentua into a Web Page
 
 
 1. Include the Consentua embedding library in the HEAD section of the page
@@ -21,7 +21,7 @@ There are two use cases for integrating with Consentua:
 <iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 600px; min-height: 700px;"></iframe>
 ```
 
-3. Add a short script to set up the consentua interaction, and receive the output. jQuery is assumed in the snippet below, but is not required.
+3. Add a short script to set up the consentua interaction, and receive the output.
 ```
   <script>
     // Consentua account details
@@ -47,31 +47,3 @@ There are two use cases for integrating with Consentua:
   </script>
 ```
 
-## 2. Building custom interactions
-
-By default, Consentua chooses an appropriate interaction based on the properties such as the size and complexity of the consent template that's being displayed.
-
-## 3. I want to run my own websdk server/ run locally 
-
-Clone this repo and make sure you have node/npm installed and bower
-
-Install the dependencies
-
-```
-$ npm i
-cd ui-polymer
-$ bower i
-```
-
-Run the server
-
-```
-$ npm run start
-```
-
-Server will now be running on `http://localhost:3000` with a example page at `/wrapper.html`
-
-
-### Deploying to [insert cloud service here]
-
-TODO
