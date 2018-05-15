@@ -29,6 +29,9 @@
         window.consentua.addString('agree-single', {'en': 'I agree to this use of my data'});
         window.consentua.addString('agree-multi', {'en': 'I agree to these uses of my data'});
 
+        window.consentua.addString('will-use', {'en': 'We will use'});
+        window.consentua.addString('for-purpose', {'en': 'For the purpose of'});
+
         console.log("Consentua is ready; setting up the default interaction", window.consentua.template);
 
         $('#question').text(window.consentua.template.Question);
@@ -47,8 +50,8 @@
 
             for(var j in pg.Purposes) {
                 purposes.append("<li><div class=\"txt\">" +
-                "<span class=\"txt_data_pre\">" + pg.Purposes[j].DataUseText + "</span> <span class=\"txt_data\">" + pg.Purposes[j].DataUse + "</span>" +
-                "<span class=\"txt_purpose_pre\">" + pg.Purposes[j].DataPurposeText + "</span> <span class=\"txt_purpose\">" + pg.Purposes[j].DataPurpose + "</span>" +
+                "<span class=\"txt_data_pre\">" +  window.consentua.getString('will-use') + "</span> <span class=\"txt_data\">" + pg.Purposes[j].DataUse + "</span>" +
+                "<span class=\"txt_purpose_pre\">" +  window.consentua.getString('for-purpose') + "</span> <span class=\"txt_purpose\">" + pg.Purposes[j].DataPurpose + "</span>" +
                 "</div></li>");
             }
 

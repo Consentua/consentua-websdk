@@ -27,7 +27,8 @@
          * Register custom strings with the consentua i18n engine
          */
         window.consentua.addString('select', {'en': 'Use this option'});
-        window.consentua.addString('agree-multi', {'en': 'I agree to these uses of my data'});
+        window.consentua.addString('will-use', {'en': 'We will use'});
+        window.consentua.addString('for-purpose', {'en': 'For the purpose of'});
 
         console.log("Consentua is ready; setting up the default interaction", window.consentua.template);
 
@@ -46,8 +47,8 @@
             var purposes = $('<ol></ol>').appendTo(li);
 
             purposes.append("<li><div class=\"txt\">" +
-            "<span class=\"txt_data_pre\">" + p.DataUseText + "</span> <span class=\"txt_data\">" + p.DataUse + "</span>" +
-            "<span class=\"txt_purpose_pre\">" + p.DataPurposeText + "</span> <span class=\"txt_purpose\">" + p.DataPurpose + "</span>" +
+            "<span class=\"txt_data_pre\">" + window.consentua.getString('will-use') + "</span> <span class=\"txt_data\">" + p.DataUse + "</span>" +
+            "<span class=\"txt_purpose_pre\">" + window.consentua.getString('for-purpose') + "</span> <span class=\"txt_purpose\">" + p.DataPurpose + "</span>" +
             "</div></li>");
 
             var agree = $("<div class=\"agree\"><span class=\"agree-txt\">" + window.consentua.getString('select') + "</span></div>").appendTo(li);
