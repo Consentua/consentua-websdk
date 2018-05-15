@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Consentua Default UI</title>
+    <title>Consentua Binary UI</title>
 
     <link rel="stylesheet" href="default.css" type="text/css" />
 

@@ -201,6 +201,7 @@ var ConsentuaController = function () {
          return true;
      }
 
+
     /**
      * Set consent for a purpose group
      *
@@ -252,6 +253,11 @@ var ConsentuaController = function () {
             consents: consents,
             complete: self.isConsentComplete()
         });
+    }
+
+    self.setPurposeConsent = function(purposeIds, consented)
+    {
+
     }
 
     /**
