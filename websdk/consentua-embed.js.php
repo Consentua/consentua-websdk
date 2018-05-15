@@ -19,6 +19,13 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
 {
     var self = this;
 
+    self.onset = function(){};
+    self.onready = function(){};
+
+    // Legacy: cb_set used to be passed in, now it's a property
+    if(typeof cb_set !== 'undefined')
+        self.onset = cb_set;
+
     var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
 
     var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid;
@@ -54,7 +61,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
     {
         if(event.source != iframe.contentWindow)
         {
-            console.log("Received message didn't come from consentua iframe", event.source, iframe);
+            console.debug("Received message didn't come from consentua iframe", event.source, iframe);
             return;
         }
 
@@ -71,10 +78,11 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
         if(msg.type == 'consentua-ready'){
             console.log("Embed is ready", msg);
             iframe.style.height = (msg.message.height + 20) + 'px';
+            self.onready(msg);
         }
         // When consent is set, pass it to the callback
         else if (msg.type == 'consentua-set'){
-            cb_set(msg);
+            self.onset(msg);
         }
     };
 

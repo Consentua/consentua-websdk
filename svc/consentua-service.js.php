@@ -85,28 +85,15 @@ function loadInteraction(template, userid)
 
         console.log("Interaction URL is not provided by template, picking based on DisplayType", template.DisplayType);
 
-        // TODO test if running localy/prod for urls
         switch(template.DisplayType.toLowerCase())
         {
             case 'linear':
-                console.log('linear detected, navigating to /linear');
-                template.ixUrl = '/ui-default/';
+                template.ixUrl = '/ui-default/?t=linear';
                 break;
 
             case 'binary':
-                console.log('binary detected, navigating to /binary');
-                template.ixUrl = '/ui-default/';
+                template.ixUrl = '/ui-default/?t=binary';
                 break;
-
-            case 'mixed':
-                console.log('mixed detected, navigating to /mixed');
-                template.ixUrl = '/ui-default/';
-                break;
-
-            default:
-                console.log('none detected, navigating to /none');
-                template.ixUrl = '/ui-default/';
-				break;
         }
 
     }
@@ -151,7 +138,7 @@ function loadInteraction(template, userid)
         iframe.style.height = height + 'px';
 
         // Tell the embedding page, too
-        wrapcomms.send('consentua-ready', {height: height, uid: userid});
+        wrapcomms.send('consentua-ready', {height: height, uid: args['uid']});
     });
 
     /**
