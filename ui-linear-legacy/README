@@ -1,0 +1,5 @@
+This implements an interface for LEGACY linear templates
+
+Legacy linear templates have one purpose group (more than that are ignored in this UI), and one purpose can be selected
+
+In new linear templates, one purpose group (with potentially multiple purposes) will be selectable

@@ -249,15 +249,61 @@ var ConsentuaController = function () {
             }
         }
 
-        comms.send('consentua-set', {
-            consents: consents,
-            complete: self.isConsentComplete()
-        });
+        pushConsentDelayed();
     }
 
     self.setPurposeConsent = function(purposeIds, consented)
     {
+        // Make sure consented is a boolean
+        var bconsented;
+        if (consented === null) {
+            bconsented = null;
+        }
 
+        if (typeof consented == "boolean") {
+            bconsented = consented;
+        } else if (consented == 1 || consented == "true") { // Will match 1 or "1"
+            bconsented = true;
+        } else {
+            bconsented = false;
+        }
+
+        // Allow a single pgid to be supplied instead of an array
+        if (Number.isInteger(purposeIds)) {
+            purposeIds = [purposeIds];
+        }
+
+        for(var i in purposeIds)
+        {
+            consents[purposeIds[i]] = bconsented;
+        }
+
+        pushConsentDelayed();
+    }
+
+    /**
+     * It's common for multiple consents to be set together; these methods allow the message back to the service
+     * to batch those consents together
+     */
+    var pushWaiting = false;
+    var pushConsentDelayed = function()
+    {
+        if(pushWaiting)
+            return;
+
+        pushWaiting = true;
+
+        window.setTimeout(pushConsent, 100);
+    }
+
+    var pushConsent = function()
+    {
+        pushWaiting = false;
+
+        comms.send('consentua-set', {
+            consents: consents,
+            complete: self.isConsentComplete()
+        });
     }
 
     /**

@@ -26,7 +26,7 @@
         /**
          * Register custom strings with the consentua i18n engine
          */
-        window.consentua.addString('select', {'en': ''});
+        window.consentua.addString('select', {'en': 'Use this option'});
         window.consentua.addString('agree-multi', {'en': 'I agree to these uses of my data'});
 
         console.log("Consentua is ready; setting up the default interaction", window.consentua.template);
@@ -34,43 +34,51 @@
         $('#question').text(window.consentua.template.Question);
         $('#explanation').text(window.consentua.template.Explanation);
 
-        var ps = window.consentua.template.getPurposeGroups()[0]; // Get purposes in group 0
+        var ps = window.consentua.template.getPurposeGroups()[0].Purposes; // Get purposes in group 0
         console.log("Purposes", ps);
         for(var i in ps)
         {
-            var pg = pgs[i];
+            var p = ps[i];
             var purposes = "";
-            console.debug("PG " + i, pg);
+            console.debug("P " + i, p);
 
             var li = $("<li class=\"group\"></li>").appendTo($('#groups'));
             var purposes = $('<ol></ol>').appendTo(li);
 
-            for(var j in pg.Purposes) {
-                purposes.append("<li><div class=\"txt\">" +
-                "<span class=\"txt_data_pre\">" + pg.Purposes[j].DataUseText + "</span> <span class=\"txt_data\">" + pg.Purposes[j].DataUse + "</span>" +
-                "<span class=\"txt_purpose_pre\">" + pg.Purposes[j].DataPurposeText + "</span> <span class=\"txt_purpose\">" + pg.Purposes[j].DataPurpose + "</span>" +
-                "</div></li>");
-            }
+            purposes.append("<li><div class=\"txt\">" +
+            "<span class=\"txt_data_pre\">" + p.DataUseText + "</span> <span class=\"txt_data\">" + p.DataUse + "</span>" +
+            "<span class=\"txt_purpose_pre\">" + p.DataPurposeText + "</span> <span class=\"txt_purpose\">" + p.DataPurpose + "</span>" +
+            "</div></li>");
 
-            var agree = $("<div class=\"agree\"><span class=\"agree-txt\">" + window.consentua.getString(pg.Purposes.length > 1 ? 'agree-multi' : 'agree-single') + "</span></div>").appendTo(li);
+            var agree = $("<div class=\"agree\"><span class=\"agree-txt\">" + window.consentua.getString('select') + "</span></div>").appendTo(li);
             var check = $("<label class=\"switch\"><input type=\"radio\" name=\"choice\" /><span class=\"slider\"></span></span>").appendTo(agree);
 
             (function(pid, groupel){ // Trap purpose id in a closure
-                $(check).on('change', function(e){
+                $(check).on('change', function(e, cascade){
                     var t = $(e.target);
                     var consent = $(t).is(':checked');
-                    console.log("Toggle", pid, consent);
+                    console.log("Select", pid, consent);
 
                     if(consent){
+                        window.consentua.setPurposeConsent(pid, true);
                         groupel.addClass('allowed');
                     }
                     else {
+                        window.consentua.setPurposeConsent(pid, false);
                         groupel.removeClass('allowed');
                     }
 
-                    window.consentua.setPurposeConsent(pid, consent);
+                    // Update the other, non-selected, radios
+                    if(typeof cascade == 'undefined' || cascade != false)
+                    {
+                        $('input[type="radio"]').each(function(i, el){
+                            if(!$(el).is(':selected')) {
+                                $(el).trigger('change', [false]);
+                            }
+                        });
+                    }
                 });
-            })(p.PurposeGroup, li);
+            })(p.Id, li);
 
             var precheck = false;
             if(precheck = window.consentua.getPurposeConsent(p.PurposeID))
@@ -78,7 +86,7 @@
                 check.click();
             }
 
-            console.log("Existing consent for " + pg.PurposeGroupID, precheck);
+            console.log("Existing consent for " + p.Id, precheck);
         }
 
 

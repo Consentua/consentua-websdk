@@ -88,7 +88,7 @@ function loadInteraction(template, userid)
         switch(template.DisplayType.toLowerCase())
         {
             case 'linear':
-                template.ixUrl = '/ui-polymer/build/default#/linear';
+                template.ixUrl = '/ui-linear-legacy/';
                 break;
 
             case 'binary':
