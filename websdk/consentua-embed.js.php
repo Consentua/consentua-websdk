@@ -15,7 +15,7 @@
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
  */
-function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servicekey, cb_set)
+function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servicekey, cb_set, lang)
 {
     var self = this;
 
@@ -26,9 +26,13 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
     if(typeof cb_set !== 'undefined')
         self.onset = cb_set;
 
+    // Language
+    if(typeof lang == 'undefined')
+        lang = 'en';
+
     var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
 
-    var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid;
+    var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid + "&lang=" + lang;
 
     if(uid !== false){ // uid is optional, it can be set false to auto-generate in the service
         url += "&uid=" + uid;

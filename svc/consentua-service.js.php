@@ -30,6 +30,9 @@ if(typeof args['s'] == 'undefined' || typeof args['k'] == 'undefined' || typeof 
   return;
 }
 
+if(typeof args['lang'] == 'undefined')
+	args['lang'] = 'en';
+
 /**
 * Set up messaging with the embedding page, and the interaction itself
 */
@@ -37,7 +40,7 @@ var wrapcomms = new WindowComms(window.parent);
 var intcomms = new WindowComms($('#consentua-interaction').get(0).contentWindow);
 
 var apipath = "<?php echo $_CONF['api-path']; ?>";
-var c = new ConsentuaClient(args['c'], args['s'], args['k'], 'en', apipath);
+var c = new ConsentuaClient(args['c'], args['s'], args['k'], args['lang'], apipath);
 
 
 /**

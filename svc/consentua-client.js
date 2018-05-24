@@ -3,7 +3,7 @@
  * Async operations return deferred objects, so use .done() to apply callbacks
  */
 
-function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl){
+function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl) {
 
     if(typeof baseurl =='undefined')
     {
@@ -279,7 +279,7 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl){
                 }
         };
         for(var pid in purposes){
-            model.Consent.Purposes.push({ConsentTemplateId: templateid, PurposeId:pid, Consent: purposes[pid]});
+            model.Consent.Purposes.push({ConsentTemplateId: templateid, PurposeId:pid, Consent: purposes[pid] == true});
         }
 
         var def = $.Deferred();
