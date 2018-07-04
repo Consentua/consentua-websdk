@@ -14,8 +14,18 @@
 
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
+ *
+ * iframe: The iframe element that the interaction should be loaded into
+ * clientid: Consentua CLient ID
+ * uid: The UID of the user, or false to create a new one
+ * templateid: The template to display
+ * serviceid: The Consentua service ID
+ * servicekey: The Consentua service key - Will be deprecated
+ * cb_set: A callback for when consent has been set - deprecated
+ * lang: The language to use
+ * opts: Other options, passed directly as URL parameters to the Consentua Web SDK
  */
-function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servicekey, cb_set, lang)
+function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servicekey, cb_set, lang, opts)
 {
     var self = this;
 
@@ -29,13 +39,21 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
     // Language
     if(typeof lang == 'undefined')
         lang = 'en';
+        
+    // Options
+    if(typeof opts == 'undefined')
+        opts = {};
 
-    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
+    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/"; 
 
     var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid + "&lang=" + lang;
 
     if(uid !== false){ // uid is optional, it can be set false to auto-generate in the service
         url += "&uid=" + uid;
+    }
+
+    for(var k in opts) {
+        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(opts[k]);
     }
 
     iframe.setAttribute('src', url)

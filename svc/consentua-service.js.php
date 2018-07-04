@@ -20,7 +20,7 @@ var hp = h.replace(/^#/, '').split(/&/);
 var args = {};
 for(var i in hp){
   var a = hp[i].split(/=/);
-  args[a[0]] = a[1];
+  args[a[0]] = decodeURIComponent(a[1]);
 }
 
 console.log("Initialise Consentua Web SDK Service", args);
@@ -83,8 +83,12 @@ function login()
  */
 function loadInteraction(template, userid)
 {
-    // Interaction type should be in template, but atm it isn't, so polyfill it
-    if(typeof template.ixUrl == 'undefined') {
+    // Interaction can be overridden by an argument from the calling page
+    if(typeof args['ix'] !== 'undefined') {
+        template.ixUrl = args['ix'];
+    }
+    // Else, interaction type should be in template already, but on legacy deployments it isn't, so polyfill it
+    else if(typeof template.ixUrl == 'undefined') {
 
         console.log("Interaction URL is not provided by template, picking based on DisplayType", template.DisplayType);
 
@@ -100,6 +104,8 @@ function loadInteraction(template, userid)
         }
 
     }
+    
+    
 
     console.log("Template and user account are ready; loading interaction", template.ixUrl);
 

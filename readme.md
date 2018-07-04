@@ -10,40 +10,19 @@ There are two use cases for integrating with Consentua:
 
 ## Embedding Consentua into a Web Page
 
+See index.html, which includes examples and documentation for deploying Consentua on a webpage. Importantly, you do NOT need to clone this repository!
 
-1. Include the Consentua embedding library in the HEAD section of the page
-```
-<script src="https://websdk-test.consentua.com/websdk/consentua-embed.js" type="text/javascript"></script>
-```
 
-2. Add an iframe element for the consentua element to be loaded into
-```
-<iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 600px; min-height: 700px;"></iframe>
-```
+## Building new interactions for obtaining consent
 
-3. Add a short script to set up the consentua interaction, and receive the output.
-```
-  <script>
-    // Consentua account details
-    var cid = 'X'; // Consentua customer ID
-    var sid = 'Y'; // Consentua service ID
-    var skey = 'Z'; // Consentua service key
-    var tid = 'Q'; // Consentua consent template ID
-    
-    // UID is a string that identifies the user within your own service; set 
-    // this to false to generate one automatically (for instance in flows where 
-    // identity is not yet known, like a newsletter sign-up)
-    var uid = ''; 
+To build custom consent interactions/interfaces, see the example provided in ui-simple which is heavily commented. You can load the javascript libraries (consentua-interaction.js, and comms.js) directly from websdk.consentua.com
 
-    // When consent is set, it's passed to a callback function
-    // You'll probably want to store parts of this message, and update page state to
-    // (for instance) allow form submission to take place
-    var cb = function(msg){
-        console.log("Consent received from Consentua", msg);
-    };
+### For testing: 
 
-    var iframe = document.getElementById('consentua-widget');
-    var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, cb);
-  </script>
-```
+* Host your interaction on a web server, it's OK if this is only available locally.
+* Use the normal process to embed a consentua template into another web page, but pass an "ix" argument via the args option of the ConsentuaUIWrapper. That argument should be the URL of the interaction, something like `{ix: "http://127.0.0.1:8080/my-interaction/"}`
+* Load the embedding page in a web browser. The live consentua service (or test/development, depending on which mebed library you've loaded) will embed the interaction that you've specified via the ix argument, rather that the one that the specified template is usually bound to.
 
+### For deployment:
+
+Once complete, you'll need to contact support to have your custom interaction verified and made available for you to bind to consent templates in your Consentua account.
