@@ -302,8 +302,20 @@ var ConsentuaController = function () {
 
         comms.send('consentua-set', {
             consents: consents,
+            extra: metadata,
             complete: self.isConsentComplete()
         });
+    }
+
+    /**
+     * Interactions can set metadata that will be stored (via setConsentsEX) along with
+     * the consent record. This metadata is sent with every call to setPgConsent /
+     * setPurposeConsent
+     * 
+     */
+    var metadata = {};
+    self.setMetadata = function(name, value) {
+        metadata[name] = value;
     }
 
     /**

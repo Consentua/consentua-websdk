@@ -263,8 +263,9 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl) {
     /**
      * Set consent for the given user. Purposes should be an object of the form:
      * { purposeID: boolean, purpose2ID: boolean }
+     * Extra can contain arbitrary data, it will be JSON serialized and stored via getConsentsEx
      */
-    self.setConsents = function(uid, templateid, purposes) {
+    self.setConsents = function(uid, templateid, purposes, extra) {
         if(typeof self.uidmap[uid] == 'undefined') {
             console.error("User identifier '" + uid + "' has not been resolved, yet - call addUser() or testIfUserExists()!");
         }
@@ -282,8 +283,14 @@ function ConsentuaClient(clientID, serviceID, serviceKey, lang, baseurl) {
             model.Consent.Purposes.push({ConsentTemplateId: templateid, PurposeId:pid, Consent: purposes[pid] == true});
         }
 
+      	if(typeof extra !== "object") {
+      		extra = {};
+      	}
+
+      	model.AuthenticationData = JSON.stringify(extra);
+
         var def = $.Deferred();
-        self.postBody('/userconsent/SetConsents', model).done(function(response){
+        self.postBody('/userconsent/SetConsentsEx', model).done(function(response){
             def.resolve(response);
         });
 

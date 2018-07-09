@@ -31,7 +31,9 @@ if(typeof args['s'] == 'undefined' || typeof args['k'] == 'undefined' || typeof 
 }
 
 if(typeof args['lang'] == 'undefined')
-	args['lang'] = 'en';
+	var lang = 'en';
+else
+	var lang = args['lang'];
 
 /**
 * Set up messaging with the embedding page, and the interaction itself
@@ -40,7 +42,7 @@ var wrapcomms = new WindowComms(window.parent);
 var intcomms = new WindowComms($('#consentua-interaction').get(0).contentWindow);
 
 var apipath = "<?php echo $_CONF['api-path']; ?>";
-var c = new ConsentuaClient(args['c'], args['s'], args['k'], args['lang'], apipath);
+var c = new ConsentuaClient(args['c'], args['s'], args['k'], lang, apipath);
 
 
 /**
@@ -104,8 +106,8 @@ function loadInteraction(template, userid)
         }
 
     }
-    
-    
+
+
 
     console.log("Template and user account are ready; loading interaction", template.ixUrl);
 
@@ -157,8 +159,21 @@ function loadInteraction(template, userid)
     {
         console.log("Interaction sent updated consent", msg);
 
+				// Look for additional information from the interaction to store with the consent record
+				if(typeof msg.message.extra !== "object") {
+					var extra = {};
+				} else {
+					var extra = msg.message.extra;
+				}
+
+				// Store our own metadata in there, too
+				extra._ix = template.ixUrl;
+				extra._ua = window.navigator.userAgent;
+				extra._lang = lang;
+				extra._url = window.location.href;
+
         // Save the consent settings
-        c.setConsents(args['uid'], args['t'], msg.message.consents);
+        c.setConsents(args['uid'], args['t'], msg.message.consents, extra);
 
         // Tell the customer site that the consent interaction is complete
         wrapcomms.send('consentua-set', {
