@@ -39,12 +39,12 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
     // Language
     if(typeof lang == 'undefined')
         lang = 'en';
-        
+
     // Options
     if(typeof opts == 'undefined')
         opts = {};
 
-    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/"; 
+    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
 
     var url = sdkbase + "#s=" + serviceid + "&k=" + servicekey + "&c=" + clientid + "&t=" + templateid + "&lang=" + lang;
 
@@ -87,7 +87,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, servic
             return;
         }
 
-        if (!event.origin.match(/^https?:\/\/((.+\.consentua\.com)|(localhost(:[0-9]+)?)|(127\.0\.0\.1(:[0-9]+)?))/)) // Allow 127.0.0.1 for development
+        if (!event.origin.match(/^https?:\/\/((.+\.consentua\.com)|(localhost(:[0-9]+)?)|(127\.0\.0\.(1|2|3)(:[0-9]+)?))/)) // Allow 127.0.0.x for development
         {
             console.error("Message did not come from Consentua Web Service", event.origin);
             return;

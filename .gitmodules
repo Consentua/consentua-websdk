@@ -1,0 +1,3 @@
+[submodule "svc/consentua-client"]
+	path = svc/consentua-client
+	url = https://github.com/Consentua/consentua-client-js.git
