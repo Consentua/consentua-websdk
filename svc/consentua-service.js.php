@@ -23,6 +23,9 @@ for(var i in hp){
   args[a[0]] = decodeURIComponent(a[1]);
 }
 
+$('#consentua-interaction').hide(); // Hide the iframe
+
+
 console.log("Initialise Consentua Web SDK Service", args);
 
 if(typeof args['s'] == 'undefined' || typeof args['k'] == 'undefined' || typeof args['c'] == 'undefined' || typeof args['t'] == 'undefined'){
@@ -133,6 +136,10 @@ function loadInteraction(template, userid)
        // When the existing consents and the template are ready, give them to the interaction
        $.when(pTemplate, pConsents).then(function(template, consents){
           msg.reply({template: template, consents: consents, user: user});
+
+					// Show the iframe and hide the loading indicator
+					$('#loading').hide();
+					$('#consentua-interaction').show();
        });
      });
 

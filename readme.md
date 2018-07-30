@@ -17,7 +17,7 @@ See index.html, which includes examples and documentation for deploying Consentu
 
 To build custom consent interactions/interfaces, see the example provided in ui-simple which is heavily commented. You can load the javascript libraries (consentua-interaction.js, and comms.js) directly from websdk.consentua.com
 
-### For testing: 
+### For testing:
 
 * Host your interaction on a web server, it's OK if this is only available locally.
 * Use the normal process to embed a consentua template into another web page, but pass an "ix" argument via the args option of the ConsentuaUIWrapper. That argument should be the URL of the interaction, something like `{ix: "http://127.0.0.1:8080/my-interaction/"}`
@@ -26,3 +26,15 @@ To build custom consent interactions/interfaces, see the example provided in ui-
 ### For deployment:
 
 Once complete, you'll need to contact support to have your custom interaction verified and made available for you to bind to consent templates in your Consentua account.
+
+## Working with the WebSDK service locally
+For development, this whole codebase can be run locally. The API that's used is auto-detected based on server hostname, as follows. Different loopback addresses (127.0.0.x) make it easy to switch between APIs while testing locally.
+
+| Server Hostname | API |
+| -- | -- |
+| websdk.consentua.com | production |
+| 127.0.0.3 | production |
+| websdk-test.consentua.com | test |
+| 127.0.0.1 | test |
+| websdk-dev.consentua.com | development |
+| 127.0.0.2 | development |

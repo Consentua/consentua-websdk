@@ -16,6 +16,7 @@ switch($_SERVER['SERVER_NAME'])
 		break;
 
 	case 'websdk.consentua.com':
+	case '127.0.0.3':
 	default:
 		$_CONF['api-path'] = "https://api.consentua.com/";
 		break;
