@@ -119,7 +119,6 @@ pre {
         <script>
         var cid = '2'; // Customer ID
         var sid = '1'; // Consentua service ID
-        var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
         var tid = '2'; // Template ID
 
         var uid = false;
@@ -137,17 +136,17 @@ pre {
         };
 
         var iframe = document.getElementById('consentua-widget');
-        
+
         /**
-         * For testing out new interactions, pass an "ix" option that contains the URL of the interaction you want to test. 
+         * For testing out new interactions, pass an "ix" option that contains the URL of the interaction you want to test.
          * This will be used instead of the interaction that the template is bound to in Consentua. e.g.
-        
+
         var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, function(){}, "fr", {ix: "http://127.0.0.1:8080/ui-simple/main.html"});
-        
+
          */
-        
-        var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, function(){}, "fr");
-        
+
+        var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, null, function(){}, "fr");
+
         cwrap.onset = cb_set;
         cwrap.onready = cb_ready;
 
@@ -186,7 +185,6 @@ pre {
 
 var cid = '2'; // Customer ID
 var sid = '1'; // Consentua service ID
-var skey = '19fb13ab-d6f2-42dc-a41c-42249450b5b6'; // Consentua service key
 var tid = '4'; // Template ID
 
 /**
@@ -229,7 +227,7 @@ var cb_set = function (msg) {
 };
 
 var iframe = document.getElementById('consentua-widget');
-var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey);
+var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid);
 cwrap.onset = cb_set;
 cwrap.onready = cb_ready;
 
