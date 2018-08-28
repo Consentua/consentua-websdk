@@ -31,6 +31,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
 
     self.onset = function(){};
     self.onready = function(){};
+    self.onreceipt = function(){};
 
     // Legacy: cb_set used to be passed in, now it's a property
     if(typeof cb_set !== 'undefined')
@@ -105,6 +106,10 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
         // When consent is set, pass it to the callback
         else if (msg.type == 'consentua-set'){
             self.onset(msg);
+        }
+        // Receipts
+        else if (msg.type =='consent-receipt'){
+            self.onreceipt(msg);
         }
     };
 

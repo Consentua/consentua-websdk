@@ -196,7 +196,12 @@ function loadInteraction(template, userid)
 				extra._url = window.location.href;
 
         // Save the consent settings
-        c.setConsents(args['uid'], args['t'], msg.message.consents, extra);
+        c.setConsents(args['uid'], args['t'], msg.message.consents, extra).then(function(res){
+			// Once consent has been set, give the receipt URL to the embedding page
+			wrapcomms.send('consentua-receipt', {
+				receiptURL: apipath + "/ConsentReceipt/GetConsentReceipt?version=KI-CR-v1.1.0&consentReceiptId=" + msg.message.ConsentReceiptID
+			});
+		});
 
         // Tell the customer site that the consent interaction is complete
         wrapcomms.send('consentua-set', {
