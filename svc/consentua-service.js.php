@@ -38,6 +38,13 @@ if(typeof args['lang'] == 'undefined')
 else
 	var lang = args['lang'];
 
+if(typeof args['skey'] == 'undefined')
+	var skey = false;
+else
+	var skey = args['skey'];
+
+console.debug("Service key", skey);
+
 /**
 * Set up messaging with the embedding page, and the interaction itself
 */
@@ -50,7 +57,7 @@ var c = new ConsentuaClient({
 	clientID: args['c'],
 	lang: lang,
 	baseURL: apipath,
-	serviceKey: '19fb13ab-d6f2-42dc-a41c-42249450b5b6' // BUG: Only reqd while templates need logged in service, to be dropped ASAP!
+	serviceKey: skey
 });
 
 
@@ -120,7 +127,7 @@ function loadInteraction(template, userid)
 {
     // Interaction can be overridden by an argument from the calling page
     if(typeof args['ix'] !== 'undefined') {
-		console.log("Interaction URL has been overridden by calling page", args[ix]);
+		console.log("Interaction URL has been overridden by calling page", args['ix']);
         template.ixUrl = args['ix'];
     }
     else
@@ -199,7 +206,7 @@ function loadInteraction(template, userid)
         c.setConsents(args['uid'], args['t'], msg.message.consents, extra).then(function(res){
 			// Once consent has been set, give the receipt URL to the embedding page
 			wrapcomms.send('consentua-receipt', {
-				receiptURL: apipath + "/ConsentReceipt/GetConsentReceipt?version=KI-CR-v1.1.0&consentReceiptId=" + msg.message.ConsentReceiptID
+				receiptURL: apipath + "/ConsentReceipt/GetConsentReceipt?version=KI-CR-v1.1.0&consentReceiptId=" + res.ConsentReceiptId
 			});
 		});
 

@@ -108,7 +108,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
             self.onset(msg);
         }
         // Receipts
-        else if (msg.type =='consent-receipt'){
+        else if (msg.type =='consentua-receipt'){
             self.onreceipt(msg);
         }
     };
