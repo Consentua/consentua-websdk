@@ -91,7 +91,6 @@ var ConsentuaController = function () {
             event.initEvent('consentua-ready', true, true);
         }
 
-        var event = new Event('consentua-ready');
         document.body.dispatchEvent(event);
     }
 
