@@ -136,7 +136,7 @@ function ConsentuaEmbed(opts)
     {
         if(event.source != opts.iframe.contentWindow)
         {
-            console.debug("Received message didn't come from consentua iframe", event.source, iframe);
+            console.debug("Received message didn't come from consentua iframe", event.source, opts.iframe);
             return;
         }
 
