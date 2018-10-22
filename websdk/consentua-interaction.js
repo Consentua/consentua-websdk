@@ -83,7 +83,14 @@ var ConsentuaController = function () {
         if (typeof $ != 'undefined')
             $(document).trigger('consentua-ready');
 
-        // and NATIVE
+        // and native event
+        if(typeof(Event) === 'function') {
+            var event = new Event('consentua-ready');
+        } else { // Legacy; IE11 etc.
+            var event = document.createEvent('Event');
+            event.initEvent('consentua-ready', true, true);
+        }
+
         var event = new Event('consentua-ready');
         document.body.dispatchEvent(event);
     }
@@ -311,7 +318,7 @@ var ConsentuaController = function () {
      * Interactions can set metadata that will be stored (via setConsentsEX) along with
      * the consent record. This metadata is sent with every call to setPgConsent /
      * setPurposeConsent
-     * 
+     *
      */
     var metadata = {};
     self.setMetadata = function(name, value) {

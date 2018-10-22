@@ -12,8 +12,11 @@
 
 ?>
 
+
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
+ *
+ * This is just a wrapper around the newer ConsentuaEmbed - use that instead!
  *
  * iframe: The iframe element that the interaction should be loaded into
  * clientid: Consentua CLient ID
@@ -29,37 +32,86 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
 {
     var self = this;
 
-    self.onset = function(){};
-    self.onready = function(){};
+    self.onset = cb_set;
     self.onreceipt = function(){};
+    self.onready = function(){};
 
-    // Legacy: cb_set used to be passed in, now it's a property
-    if(typeof cb_set !== 'undefined')
-        self.onset = cb_set;
+    var embed = new ConsentuaEmbed(
+        {
+            iframe: iframe,
+            uid: uid,
+            clientid: clientid,
+            templateid: templateid,
+            serviceid: serviceid,
+            opts: opts,
+            lang: lang,
 
-    // Language
-    if(typeof lang == 'undefined')
-        lang = 'en';
+            onset: function(m){ self.onset(m); },
+            onreceipt: function(m){ self.onreceipt(m); },
+            onready: function(m){ self.onready(m); }
+        }
+    );
 
-    // Options
-    if(typeof opts == 'undefined')
-        opts = {};
+}
+
+/**
+ * Embed Consentua
+ */
+function ConsentuaEmbed(opts)
+{
+    var self = this;
+
+    // List of required options
+    var reqOpts = [
+        'clientid',
+        'serviceid',
+        'templateid',
+        'iframe'
+    ];
+
+    // Default values for non-required options
+    var defOpts = {
+        uid: false,
+        onset: function(){},
+        onready: function(){},
+        onreceipt: function(){},
+        opts: {}
+    };
+
+    for(var i in reqOpts)
+    {
+        var k = reqOpts[i];
+        if(typeof opts[k] == 'undefined')
+        throw "Required option '"+k+"' is not set";
+    }
+
+    for(var k in defOpts)
+    {
+        if(typeof opts[k] == 'undefined')
+        opts[k] = defOpts[k];
+    }
+
+
+    self.onset = opts.onset;
+    self.onready = opts.onready;
+    self.onreceipt = opts.onreceipt;
+
 
     var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
 
-    var url = sdkbase + "#s=" + serviceid + "&c=" + clientid + "&t=" + templateid + "&lang=" + lang;
+    var url = sdkbase + "#s=" + opts.serviceid + "&c=" + opts.clientid + "&t=" + opts.templateid + "&lang=" + opts.lang;
 
-    if(uid !== false){ // uid is optional, it can be set false to auto-generate in the service
-        url += "&uid=" + uid;
+    if(opts.uid !== false){ // uid is optional, it can be set false to auto-generate in the service
+        url += "&uid=" + opts.uid;
     }
 
-    for(var k in opts) {
+    for(var k in opts.opts) {
         url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(opts[k]);
     }
 
-    iframe.setAttribute('src', url)
+    opts.iframe.setAttribute('src', url)
 
-    var idoc = iframe.contentWindow.document;
+    var idoc = opts.iframe.contentWindow.document;
 
     /**
      * Send a custom event of etype to the subDOM
@@ -100,7 +152,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
         // When the interaction is ready, set the iframe height
         if(msg.type == 'consentua-ready'){
             console.log("Embed is ready", msg);
-            iframe.style.height = (msg.message.height + 20) + 'px';
+            opts.iframe.style.height = (msg.message.height + 20) + 'px';
             self.onready(msg);
         }
         // When consent is set, pass it to the callback

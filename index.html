@@ -156,8 +156,14 @@ pre {
     </form>
 
     <div>
-        <p class="info">Include the Consentua embedding library in the HEAD section of the page</p>
-        <pre>&lt;script src="http://websdk.consentua.com/websdk/consentua-embed.js" type="text/javascript"&gt;&lt;/script&gt;</pre>
+        <p class="info">Include the Consentua embedding library in the HEAD section of the page.</p>
+
+        <p>For the <strong>production</strong> environment:</p>
+        <pre>&lt;script src="//websdk.consentua.com/websdk/consentua-embed.js" type="text/javascript"&gt;&lt;/script&gt;</pre>
+
+        <p>For the <strong>test</strong> environment:</p>
+        <pre>&lt;script src="//websdk-test.consentua.com/websdk/consentua-embed.js" type="text/javascript"&gt;&lt;/script&gt;</pre>
+
 
         <p class="info">Add a short script to set up the consentua interaction, and receive the output.</p>
         <p class="notice">jQuery is assumed in the snippet below, and this example won't work without it. However, jQuery is <strong>not</strong> a requirement for embedding Consentua.</p>
