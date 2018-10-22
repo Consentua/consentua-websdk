@@ -106,7 +106,7 @@ function ConsentuaEmbed(opts)
     }
 
     for(var k in opts.opts) {
-        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(opts[k]);
+        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(opts.opts[k]);
     }
 
     opts.iframe.setAttribute('src', url)
