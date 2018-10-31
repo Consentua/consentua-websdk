@@ -78,18 +78,15 @@ function ConsentuaEmbed(opts)
         opts: {}
     };
 
-    for(var i in reqOpts)
-    {
-        var k = reqOpts[i];
+    reqOpts.map(function(k) {
         if(typeof opts[k] == 'undefined')
-        throw "Required option '"+k+"' is not set";
-    }
+            throw "Required option '"+k+"' is not set";
+    });
 
-    for(var k in defOpts)
-    {
+    Object.keys(defOpts).map(function(k) {
         if(typeof opts[k] == 'undefined')
-        opts[k] = defOpts[k];
-    }
+            opts[k] = defOpts[k];
+    });
 
 
     self.onset = opts.onset;
@@ -166,4 +163,21 @@ function ConsentuaEmbed(opts)
     };
 
     window.addEventListener("message", self.recv);
+}
+
+/**
+ * IE Polyfill for array.keys()
+ */
+if (![].keys) {
+    Array.prototype.keys = function() {
+       var k, a = [], nextIndex = 0, ary = this;
+       k = ary.length;
+       while (k > 0) a[--k] = k;
+       a.next = function(){
+           return nextIndex < ary.length ?
+               {value: nextIndex++, done: false} :
+               {done: true};
+       };
+    return a;
+    };
 }

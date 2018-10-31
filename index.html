@@ -145,7 +145,13 @@ pre {
 
          */
 
-        var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, null, function(){}, "en");
+         var cwrap = new ConsentuaEmbed({
+             iframe: iframe,
+             clientid: cid,
+             uid: uid,
+             templateid: tid,
+             serviceid: sid
+         });
 
         cwrap.onset = cb_set;
         cwrap.onready = cb_ready;
@@ -233,7 +239,13 @@ var cb_set = function (msg) {
 };
 
 var iframe = document.getElementById('consentua-widget');
-var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid);
+var cwrap = new ConsentuaEmbed({
+    iframe: iframe,
+    clientid: cid,
+    uid: uid,
+    templateid: tid,
+    serviceid: sid
+});
 cwrap.onset = cb_set;
 cwrap.onready = cb_ready;
 
