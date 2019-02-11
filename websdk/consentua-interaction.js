@@ -1,7 +1,7 @@
 /*
- This is the library for consentua *interactions* to use. It provides a
- framework and library to communicate with the rest of the SDK
-*/
+ * This is the library for consentua *interactions* to use. It provides a
+ * framework and library to communicate with the rest of the SDK
+ */
 var ConsentuaController = function () {
     if (!window.parent) {
         alert("Parent window is not available; you probably need to use the test wrapper when developing with the Consentua SDK.");
@@ -13,47 +13,40 @@ var ConsentuaController = function () {
 
     // Tell the parent that we're listening for bootstrap information (like the
     // template we should attach to)
-    console.log("Waiting for consentua template...");
+    console.log("Waiting for consentua templates...");
     comms.send('consentua-waiting', false, init);
-
-    var consents = {};
 
     // The parent window sends back a message that contains information about the
     // consent template to be used; this handles it
     function init(msg) {
         console.log("Received consentua bootstrap info", msg);
 
-        self.setTemplate(msg.message.template);
-
-        // Set up list of what has already been consented to
-        // Only do this for purposes that appear in the template
-        var consentMsg = msg.message.consents;
-
-        // Flatten the initial consent list
-        var consentList = {};
-        for(var i in consentMsg)
+        for(var info in msg.message.services)
         {
-            var c = consentMsg[i];
-            consentList[c.PurposeId] = c.Consent;
+            var service = new ConsentuaService(info.serviceid, self);
+            service.setTemplate(info.template);
+            service.setConsent(info.consent);
+            services.push(service);
         }
 
-        consents = {};
-
-        // Iterate each purpose group in the template
-        var pgs = self.template.getPurposeGroups();
-        for (var pgid in pgs) {
-
-            var pg = pgs[pgid];
-
-            // Then each purpose in the group
-            for(var i in pg.Purposes)
-            {
-                var pid = pg.Purposes[i].Id;
-                consents[pid] = typeof consentList[pid] == "undefined" ? null : consentList[pid];
-            }
+        /**
+         * When Consentua only showed one template at a time, it was exposed as
+         * window.consentua.template
+         *
+         * If there's only one template loaded, then expose it via that legacy
+         * route
+         */
+        if(services.length == 1) {
+            self.template = services[0].getTemplate();
+            
         }
 
-        console.log("Initial consent settings", consentList, consents);
+        /**
+         * Get all the loaded service/template objects
+         */
+        self.getServices = function() {
+            return services;
+        }
 
         /**
          * Setup window.consentua.ready()
@@ -94,6 +87,68 @@ var ConsentuaController = function () {
         document.body.dispatchEvent(event);
     }
 
+
+
+    /**
+     * Queue a consent update to be sent to the service; they're batched and sent
+     * after 100ms
+     */
+    var cqueue = [];
+    var cpushwaiting = false;
+    self.queueConsent = function(message) {
+        cqueue.push(message);
+
+        if(cpushwaiting)
+            return;
+
+        cpushwaiting = true;
+        window.setTimeout(sendConsent, 100);
+    }
+
+    var sendConsent = function() {
+        cpushwaiting = false;
+        comms.send('consentua-set-bulk', cqueue);
+        cqueue = [];
+    }
+
+};
+
+/**
+ * Represents a service, bound to a specific template
+ */
+function ConsentuaService(serviceid, controller)
+{
+    /**
+     * It's common for multiple consents to be set together; these methods allow the message back to the service
+     * to batch those consents together.
+     * These methods push consent state up to the ConsentuaController, which should
+     * send it back to the service.
+     */
+    var pushWaiting = false;
+    var pushConsentDelayed = function()
+    {
+        if(pushWaiting)
+            return;
+
+        pushWaiting = true;
+
+        window.setTimeout(pushConsent, 100);
+    }
+
+    var pushConsent = function()
+    {
+        pushWaiting = false;
+
+        controller.queueConsent({
+                consents: consents,
+                extra: metadata,
+                complete: self.isConsentComplete(),
+                serviceid: serviceid,
+                templateid: self.template.templateid
+            });
+    }
+
+
     /**
      * Set the consent template (and insert helper methods)
      */
@@ -122,6 +177,40 @@ var ConsentuaController = function () {
 
              return self.template.PurposeGroups[id];
          }
+     }
+
+     var consents = {};
+     self.setConsent = function(consentMsg)
+     {
+         // Set up list of what has already been consented to
+         // Only do this for purposes that appear in the template
+
+         // Flatten the initial consent list
+         var consentList = {};
+         for(var i in consentMsg)
+         {
+             var c = consentMsg[i];
+             consentList[c.PurposeId] = c.Consent;
+         }
+
+         consents = {};
+
+         // Iterate each purpose group in the template
+         var pgs = self.template.getPurposeGroups();
+         for (var pgid in pgs) {
+
+             var pg = pgs[pgid];
+
+             // Then each purpose in the group
+             for(var i in pg.Purposes)
+             {
+                 var pid = pg.Purposes[i].Id;
+                 consents[pid] = typeof consentList[pid] == "undefined" ? null : consentList[pid];
+             }
+         }
+
+
+         console.log("Initial consent settings", consentList, consents);
      }
 
     /**
@@ -287,31 +376,6 @@ var ConsentuaController = function () {
         pushConsentDelayed();
     }
 
-    /**
-     * It's common for multiple consents to be set together; these methods allow the message back to the service
-     * to batch those consents together
-     */
-    var pushWaiting = false;
-    var pushConsentDelayed = function()
-    {
-        if(pushWaiting)
-            return;
-
-        pushWaiting = true;
-
-        window.setTimeout(pushConsent, 100);
-    }
-
-    var pushConsent = function()
-    {
-        pushWaiting = false;
-
-        comms.send('consentua-set', {
-            consents: consents,
-            extra: metadata,
-            complete: self.isConsentComplete()
-        });
-    }
 
     /**
      * Interactions can set metadata that will be stored (via setConsentsEX) along with
@@ -381,8 +445,7 @@ var ConsentuaController = function () {
 
          return i18n[id][lang];
      }
-
-};
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     window.consentua = new ConsentuaController();

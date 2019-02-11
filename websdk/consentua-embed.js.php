@@ -55,7 +55,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
 }
 
 /**
- * Embed Consentua
+ * This shim migrates from the one-template embed to the multi-template embed
  */
 function ConsentuaEmbed(opts)
 {
@@ -78,35 +78,95 @@ function ConsentuaEmbed(opts)
         opts: {}
     };
 
-    reqOpts.map(function(k) {
-        if(typeof opts[k] == 'undefined')
-            throw "Required option '"+k+"' is not set";
+    fillOpts(opts, reqOpts, defOpts);
+
+    var ce = new ConsentuaMultiEmbed({
+        services: [{
+            clientid: opts.clientid,
+            serviceid: opts.serviceid,
+            templateid: opts.templateid,
+            uid: opts.uid
+        }],
+        iframe: opts.iframe,
+        onset: opts.onset,
+        onready: opts.onready,
+        onreceipt: opts.onreceipt,
+        opts: opts.opts
     });
 
-    Object.keys(defOpts).map(function(k) {
-        if(typeof opts[k] == 'undefined')
-            opts[k] = defOpts[k];
-    });
+    self.embed = ce;
+}
 
+/**
+ * Embed Consentua
+ */
+function ConsentuaMultiEmbed(opts)
+{
+    var self = this;
+
+    // List of required options
+    var reqOpts = [
+        'services',
+        'iframe'
+    ];
+
+    // Default values for non-required options
+    var defOpts = {
+        onset: function(){},
+        onready: function(){},
+        onreceipt: function(){},
+        opts: {}
+    };
+
+    var svcReqOpts = [
+        'clientid',
+        'serviceid',
+        'templateid'
+    ];
+
+    var svcDefOpts = {
+        uid: false
+    };
+
+    fillOpts(opts, reqOpts, defOpts);
+
+    for(var i in opts.services) {
+        fillOpts(opts.services[i], svcReqOpts, svcDefOpts);
+    }
+
+    console.log("Embed consentua", opts);
 
     self.onset = opts.onset;
     self.onready = opts.onready;
     self.onreceipt = opts.onreceipt;
 
+    // Assemble the JSON we want to pass to the service
+    var svcs = [];
+    for(var i in opts.services) {
+        var s = opts.services[i];
+        svcs.push({
+            sid: s.serviceid,
+            tid: s.templateid,
+            cid: s.clientid,
+            uid: s.uid
+        });
+    }
+
+    var svcjson = {
+        lang: opts.lang,
+        services: svcs
+    }
+
+    // Copy additional options
+    for(var k in opts.opts) {
+        var v = opts.opts[k];
+        svcjson[k] = v;
+    }
 
     var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
+    var url = sdkbase + "#" + JSON.stringify(svcjson);
 
-    var url = sdkbase + "#s=" + opts.serviceid + "&c=" + opts.clientid + "&t=" + opts.templateid + "&lang=" + opts.lang;
-
-    if(opts.uid !== false){ // uid is optional, it can be set false to auto-generate in the service
-        url += "&uid=" + opts.uid;
-    }
-
-    for(var k in opts.opts) {
-        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(opts.opts[k]);
-    }
-
-    opts.iframe.setAttribute('src', url)
+    opts.iframe.setAttribute('src', url);
 
     var idoc = opts.iframe.contentWindow.document;
 
@@ -164,6 +224,27 @@ function ConsentuaEmbed(opts)
 
     window.addEventListener("message", self.recv);
 }
+
+/**
+ * Helper function; check that opts contains all of the properties listed in
+ * reqOpts (an array), and copy any properties from defOpts (an object) that
+ * don't exist in opts.
+ *
+ * This in effect requires the keys listed in reqOpts, and takes default options
+ * from defOpts.
+ */
+function fillOpts(opts, reqOpts, defOpts) {
+    reqOpts.map(function(k) {
+        if(typeof opts[k] == 'undefined')
+            throw "Required option '"+k+"' is not set";
+    });
+
+    Object.keys(defOpts).map(function(k) {
+        if(typeof opts[k] == 'undefined')
+            opts[k] = defOpts[k];
+    });
+}
+
 
 /**
  * IE Polyfill for array.keys()

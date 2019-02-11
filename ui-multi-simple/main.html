@@ -1,0 +1,147 @@
+<!-- main.html is the page that's loaded in the iframe/webview -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Consent</title>
+
+    <link rel="stylesheet" href="default.css" />
+
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+    crossorigin="anonymous"></script>
+
+    <!-- This is the main library; eventually it should be loaded from the
+    online web sdk server.
+-->
+<script src="../websdk/consentua-interaction.js"></script>
+<script src="../websdk/comms.js"></script>
+
+</head>
+<body>
+
+    <script>
+    /**
+    * Interactions should wait until they receive a 'consentua-ready' event before initialising.
+    * This event is triggered in jQuery (if available) and as a native event (on document.body)
+    *
+    * Once that event has been triggered, you'll be able to access window.consentua which is provides
+    * an interface to the rest of the consentua service.
+    *
+    * Interactions shouldn't need to interact with  the consentua API directly; window.consentua should
+    * provide everything that's required. If it doesn't, file a bug report!
+    */
+    $(document).on('consentua-ready', function()
+    {
+        /**
+        * Consentua can request consent for multiple services at once; those services are
+        * exposed via window.consentua.getServices()
+        *
+        * In most cases, there will only be one service at a time, though.
+        *
+        * Each service has a template, service.getTemplate()
+        *
+        * You can use the template to configure the interaction that you display. At the very least, if you've
+        * built a specific interaction for a particular use case, you should check that the interaction has been
+        * invoked on a template that it legitimately applies to.
+        */
+        console.log("Consentua is ready; setting up the simple interaction with", services.length, "services", services);
+
+        var services = window.consentua.getServices();
+
+        for(var i in services)
+        {
+            var template = services[i].getTemplate();
+
+            console.log("Setting up service", i, "with template", template)
+
+            var list_ps = $("<ul></ul>");
+            $('#services').append($("<h2>" + template.Question + "</h2>")).append(list_ps);
+
+            // Each template contains things like purpose groups
+            var pgs = template.PurposeGroups;
+            console.log("Purpose groups", pgs);
+            for(var i in pgs)
+            {
+                var pg = pgs[i];
+                var purposes = "";
+                console.debug("PG " + i, pg.Purposes);
+
+                for(var j in pg.Purposes) {
+                    purposes += pg.Purposes[j].DataPurpose + "<br />";
+                }
+
+                list_ps.append("<li>" + purposes + "</li>");
+            }
+        }
+    }
+
+    /**
+    * We suggest showing some kind of loading indicator while the consentua interaction
+    * is initialised; it can take a second or two for the various setup operations to
+    * happen.
+    */
+    $('#loading').hide();
+    $('#main').show();
+
+    /**
+    * The UI *MUST* tell the consentua controller when it's ready
+    */
+    window.consentua.ready();
+
+    /**
+    * As consent is granted or withdrawn, you should send events back to consentua
+    * Do this in real-time, so that the parent web page, and consentua itself, have
+    * an up to date record of the current consent state.
+    *
+    * You send consent state back by calling service.setConsent(..)
+    *
+    * It takes two arguments, first: an array containing the IDs of purposeGroups
+    * that are being changed. And a boolean to indicate if consent is granted. True
+    * if consent was given, false if it was withdrawn.
+    *
+    * It's REALLY important that, if consent is simultaneously being withdrawn and
+    * granted (for instance if there are different options to choose between) you
+    * WITHDRAW the old consent before granting the new one. Otherwise, purposes that
+    * are listed in both purpose groups will be marked as non-consented by the
+    * withdrawal!
+    *
+    */
+    $('#toggle-assent').on('change', function(){
+
+        var services = window.consentua.getServices();
+        for(var i in services)
+        {
+            var template = services[i].getTemplate();
+
+            var consent = $('#toggle-assent').is(':checked');
+            var groups = template.PurposeGroups;
+            var groupids = [];
+            for(var i in groups){
+                groupids.push(i);
+            }
+
+            console.log("Toggle consent on purpose groups", groupids, consent);
+
+            services[i].setPgConsent(groupids, consent);
+        }
+    });
+
+});
+</script>
+
+<div id="loading">
+    Please wait...
+</div>
+
+<div id="main">
+    <div id="services"></div>
+
+    <div id="assent">
+        <input type="checkbox" id="toggle-assent" value="1" /> <span>I agree that my personal data may be used for the purposes stated above.</span>
+    </div>
+</div>
+
+</body>
+</html>
