@@ -75,6 +75,7 @@ function ConsentuaEmbed(opts)
         onset: function(){},
         onready: function(){},
         onreceipt: function(){},
+        oninitial: function(){},
         opts: {}
     };
 
@@ -92,6 +93,7 @@ function ConsentuaEmbed(opts)
     self.onset = opts.onset;
     self.onready = opts.onready;
     self.onreceipt = opts.onreceipt;
+    self.oninitial = opts.oninitial;
 
 
     var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
@@ -146,8 +148,12 @@ function ConsentuaEmbed(opts)
         var msg = event.data;
         console.debug("Message from service", msg);
 
+        // 'consentua-initial' contains initial consent status
+        if(msg.type == 'consentua-initial'){
+            self.oninitial(msg);
+        }
         // When the interaction is ready, set the iframe height
-        if(msg.type == 'consentua-ready'){
+        else if(msg.type == 'consentua-ready'){
             console.log("Embed is ready", msg);
             opts.iframe.style.height = (msg.message.height + 20) + 'px';
             self.onready(msg);

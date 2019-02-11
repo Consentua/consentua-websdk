@@ -158,11 +158,14 @@ function loadInteraction(template, userid)
 
        // When the existing consents and the template are ready, give them to the interaction
        $.when(pTemplate, pConsents).then(function(template, consents){
-          msg.reply({template: template, consents: consents, user: user});
+            msg.reply({template: template, consents: consents, user: user});
 
-					// Show the iframe and hide the loading indicator
-					$('#loading').hide();
-					$('#consentua-interaction').show();
+            // Send the initial consent status to the embedding page
+            wrapcomms.send('consentua-initial', {uid: args['uid'], consent: consents});
+
+            // Show the iframe and hide the loading indicator
+            $('#loading').hide();
+            $('#consentua-interaction').show();
        });
      });
 
