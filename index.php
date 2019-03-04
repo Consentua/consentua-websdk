@@ -137,6 +137,16 @@ pre {
         */
         var uid = false;
 
+
+        /**
+         * Some interactions can display multiple templates at once, as in this demo
+         * ** This feature is experimental **
+         */
+        var cid2 = '62';
+        var sid2 = '126';
+        var tid2 = '118';
+        var uid2 = false;
+
         /**
         * There are two event handlers that can be set up on the wrapper; one that's fired
         * when the consent interaction is ready (onready), and one that's fired every time
@@ -168,16 +178,36 @@ pre {
          * For testing out new interactions, pass an "ix" option that contains the URL of the interaction you want to test.
          * This will be used instead of the interaction that the template is bound to in Consentua. e.g.
          *
-         * var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, function(){}, "fr", {ix: "http://127.0.0.1:8080/ui-simple/main.html"});
+         *       opts: {ix: "http://127.0.0.1:8080/ui-simple/main.html"}
          */
 
-         var cwrap = new ConsentuaEmbed({
+         /*var cwrap = new ConsentuaMultiEmbed({
+             iframe: iframe,
+             services: [
+                {
+                    clientid: cid,
+                    uid: uid,
+                    templateid: tid,
+                    serviceid: sid
+                },
+                {
+                    clientid: cid2,
+                    uid: uid2,
+                    templateid: tid2,
+                    serviceid: sid2
+                }
+            ],
+            opts: {ix: "http://127.0.0.1:8080/ui-multi-simple/main.html"}
+        });*/
+
+        var cwrap = new ConsentuaEmbed({
              iframe: iframe,
              clientid: cid,
              uid: uid,
              templateid: tid,
-             serviceid: sid
-         });
+             serviceid: sid,
+             opts: {ix: "http://127.0.0.1:8080/ui-multi-simple/main.html"}
+        });
 
         cwrap.onset = cb_set;
         cwrap.onready = cb_ready;

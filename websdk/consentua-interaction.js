@@ -2,6 +2,12 @@
  * This is the library for consentua *interactions* to use. It provides a
  * framework and library to communicate with the rest of the SDK
  */
+ console.oldlog = console.log;
+ console.log = function(){
+     var args = Array.prototype.slice.call(arguments);
+     console.oldlog.apply(this, ["%c[I]%c", "color: #4286f4; font-weight: bold;", ""].concat(args));
+ }
+
 var ConsentuaController = function () {
     if (!window.parent) {
         alert("Parent window is not available; you probably need to use the test wrapper when developing with the Consentua SDK.");
@@ -13,16 +19,19 @@ var ConsentuaController = function () {
 
     // Tell the parent that we're listening for bootstrap information (like the
     // template we should attach to)
-    console.log("Waiting for consentua templates...");
+    console.debug("Waiting for consentua templates...");
     comms.send('consentua-waiting', false, init);
+
+    var services = [];
 
     // The parent window sends back a message that contains information about the
     // consent template to be used; this handles it
     function init(msg) {
-        console.log("Received consentua bootstrap info", msg);
+        console.debug("Received consentua bootstrap info", msg);
 
-        for(var info in msg.message.services)
+        for(var i in msg.message.services)
         {
+            var info = msg.message.services[i];
             var service = new ConsentuaService(info.serviceid, self);
             service.setTemplate(info.template);
             service.setConsent(info.consent);
@@ -38,7 +47,6 @@ var ConsentuaController = function () {
          */
         if(services.length == 1) {
             self.template = services[0].getTemplate();
-            
         }
 
         /**
@@ -118,6 +126,8 @@ var ConsentuaController = function () {
  */
 function ConsentuaService(serviceid, controller)
 {
+    var self = this;
+
     /**
      * It's common for multiple consents to be set together; these methods allow the message back to the service
      * to batch those consents together.
@@ -138,14 +148,15 @@ function ConsentuaService(serviceid, controller)
     var pushConsent = function()
     {
         pushWaiting = false;
-
-        controller.queueConsent({
+        var m = {
                 consents: consents,
                 extra: metadata,
                 complete: self.isConsentComplete(),
                 serviceid: serviceid,
-                templateid: self.template.templateid
-            });
+                templateid: self.template.Id
+            };
+
+        controller.queueConsent(m);
     }
 
 
@@ -155,7 +166,6 @@ function ConsentuaService(serviceid, controller)
      self.setTemplate = function(t)
      {
          // TODO: Check that the provided template is valid
-         console.log('Set Template', t);
          self.template = t;
 
          for (var id in self.template.PurposeGroups)
@@ -177,6 +187,10 @@ function ConsentuaService(serviceid, controller)
 
              return self.template.PurposeGroups[id];
          }
+     }
+
+     self.getTemplate = function() {
+         return self.template;
      }
 
      var consents = {};
@@ -209,8 +223,7 @@ function ConsentuaService(serviceid, controller)
              }
          }
 
-
-         console.log("Initial consent settings", consentList, consents);
+         console.debug("Initial consent settings for service ", serviceid, consentList, consents);
      }
 
     /**
@@ -285,7 +298,6 @@ function ConsentuaService(serviceid, controller)
      self.isConsentedGroup = function (purposeGroupId)
      {
          var c = self.getPgConsent(purposeGroupId);
-         console.log("Check consent on group", purposeGroupId, c);
 
          for(var i in c)
          {
@@ -335,7 +347,7 @@ function ConsentuaService(serviceid, controller)
         {
             var pgid = purposeGroupIds[i];
             var pg = self.template.getPurposeGroupByID(pgid);
-            console.log(pg);
+
             for(var pid in pg.Purposes)
             {
                 var p = pg.Purposes[pid];

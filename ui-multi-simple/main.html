@@ -46,9 +46,8 @@
         * built a specific interaction for a particular use case, you should check that the interaction has been
         * invoked on a template that it legitimately applies to.
         */
-        console.log("Consentua is ready; setting up the simple interaction with", services.length, "services", services);
-
         var services = window.consentua.getServices();
+        console.log("Consentua is ready; setting up the simple interaction with", services.length, "services", services);
 
         for(var i in services)
         {
@@ -75,7 +74,6 @@
                 list_ps.append("<li>" + purposes + "</li>");
             }
         }
-    }
 
     /**
     * We suggest showing some kind of loading indicator while the consentua interaction
@@ -111,9 +109,10 @@
     $('#toggle-assent').on('change', function(){
 
         var services = window.consentua.getServices();
-        for(var i in services)
+        console.log("Services", services);
+        for(var si in services)
         {
-            var template = services[i].getTemplate();
+            var template = services[si].getTemplate();
 
             var consent = $('#toggle-assent').is(':checked');
             var groups = template.PurposeGroups;
@@ -124,11 +123,12 @@
 
             console.log("Toggle consent on purpose groups", groupids, consent);
 
-            services[i].setPgConsent(groupids, consent);
+            services[si].setPgConsent(groupids, consent);
         }
     });
 
 });
+
 </script>
 
 <div id="loading">

@@ -11,8 +11,36 @@
  * This script is run by the service at websdk.consentua.com
  */
 
-console.log("Service loaded");
 $().ready(function(){
+
+console.log("\n%c\
+      _____ ____  _   _  _____ ______ _   _ _______ _    _             \n\
+     / ____/ __ \\| \\ | |/ ____|  ____| \\ | |__   __| |  | |  /\\  TM    \n\
+    | |   | |  | |  \\| | (___ | |__  |  \\| |  | |  | |  | | /  \\       \n\
+    | |   | |  | | . ` |\\___ \\|  __| | . ` |  | |  | |  | |/ /\\ \\      \n\
+    | |___| |__| | |\\  |____) | |____| |\\  |  | |  | |__| / ____ \\     \n\
+     \\_____\\____/|_| \\_|_____/|______|_| \\_|  |_|   \\____/_/    \\_\\    \n\
+                                                                       \n\
+%c\n  Powered by Consentua, probably the world's best consent management\n\
+  system.\n\n\
+  %cwww.consentua.com\n\
+  \n\
+  To aid debugging, console messages have a component indicator:\n\
+  %c[C] %c: Consentua Service\n\
+  %c[I] %c: Consent Interaction\n\n\
+",
+"background: #9a1144; color: #fff; font-weight: bold;", // Logotype
+"background: #fff; color: #666;", "font-weight: bold", // Text
+"color: #9a1144; font-weight: bold;", "", // [C]
+"color: #4286f4; font-weight: bold;", "", // [I]
+
+);
+
+console.oldlog = console.log;
+console.log = function(){
+    var args = Array.prototype.slice.call(arguments);
+    console.oldlog.apply(this, ["%c[C]%c", "color: #9a1144; font-weight: bold;", ""].concat(args));
+}
 
 /* A lump of JSON is passed as the hash to configure the service; it should have
  * the format:
@@ -64,7 +92,7 @@ var apipath = "<?php echo $_CONF['api-path']; ?>";
 // We'll route updates from the interaction to the correct client when they're
 // received
 var clients = {};
-var init = [];
+var cwinit = []; // Will hold ClientWrapper intialisation promises
 var masterclient = false;
 var clientcount = 0;
 for(var i in args.services) {
@@ -79,6 +107,8 @@ for(var i in args.services) {
     if(typeof svc.skey === 'undefined') {
         svc.skey = false;
     }
+
+    //console.log("Configuring service", svc);
 
     var c = new ConsentuaClient({
     	serviceID: svc.sid,
@@ -101,18 +131,20 @@ for(var i in args.services) {
     if(masterclient === false)
         masterclient = cw;
 
-    init.push(cw.getDeferred()); // Initialise the client, store the promise
+    cwinit.push(cw.getDeferred()); // Initialise the client, store the promise
 }
-
-console.log(clients);
 
 if(masterclient === false) {
     console.error("NO SERVICES REQUESTED");
 }
 
-console.log("Clients configured", masterclient, clients);
+console.debug("Clients configured", masterclient, clients, cwinit);
 
-$.when(init).done(function(){ console.log("Clients ready, loading interaction"); masterclient.getTemplate().done(loadInteraction); } );
+$.when(cwinit).done(function()
+{
+    console.debug("Clients ready, loading interaction");
+    masterclient.getTemplate().done(loadInteraction);
+} );
 
 
 /**
@@ -129,22 +161,24 @@ function ClientWrapper(client, tid, uid) {
      */
     var init = function() {
         // Either create a new user, of retrieve the one specified for the service
-        if(typeof uid == 'undefined')
+        if(typeof uid == 'undefined' || uid === false)
         {
-            var au = c.addUser();
-            au.then(function(user){
+            var au = client.addUser();
+            au.done(function(user){
                 console.log("Created Consentua user", user.UserId, " with identifier ", user.Identifier, user);
                 uid = user.Identifier; // Store the created identifier
+            }).fail(function(){
+                console.error("Could not create a new user, are the credentials correct?", client.debugInfo({userID: uid, templateID: tid}));
             });
         }
         else
         {
-            var au = c.testIfUserExists(uid);
+            var au = client.testIfUserExists(uid);
             au.then(function(exists, data){
 
                 if(!exists)
                 {
-                    console.error("User " + uid + " was not found");
+                    console.error("User " + uid + " was not found, are the credentials correct?", client.debugInfo({userID: uid, templateID: tid}));
                     throw "unknown uid";
                 }
 
@@ -155,16 +189,21 @@ function ClientWrapper(client, tid, uid) {
         /**
          * In parallel, download the template
          */
-         var gt = c.getTemplate(args.t);
+         var gt = client.getTemplate(tid);
          gt.done(function(template){
              console.log("Consentua template:", template);
+         }).fail(function(){
+             console.error("Could not retrieve template, are credentials correct?", client.debugInfo({userID: uid, templateID: tid}));
          });
 
          /**
           * When the template and the user are both ready, resolve the deferred
           */
-         $.when(gt, au).done( function(res){ initdef.resolve(res); } );
+         $.when(gt, au).done( function(res){
+             initdef.resolve(res);
+         } );
     }
+    init();
 
     /**
      * Return a deferred object that resolves once the client is set up and has
@@ -197,6 +236,7 @@ function ClientWrapper(client, tid, uid) {
      */
     self.getTemplate = function() {
         var def = $.Deferred();
+
         initdef.done(function(){
             client.getTemplate(tid).done(def.resolve);
         });
@@ -215,16 +255,38 @@ function ClientWrapper(client, tid, uid) {
     }
 }
 
+// Helper function for using $.when with arrays of Deferred objects
+var waCount = 0;
+function whenAll(defs) {
+    var myNum = ++waCount;
+    console.debug("Compound Deferred " + myNum + " created with " + defs.length + " deferrals");
+    var def = $.Deferred();
+    $.when.apply($, defs).done(function(){
+        console.debug("Compound Deferred " + myNum + " has completed");
+        def.resolve(arguments);
+    });
+    return def;
+}
+
 
 /**
  * Stage 2: Load the interaction and any existing user consents
  */
 function loadInteraction(template)
 {
+    console.log("Loading interaction for template", template);
 
     // Interaction can be overridden by an argument from the calling page
     if(typeof args['ix'] !== 'undefined') {
-		console.log("Interaction URL has been overridden by calling page", args['ix']);
+		console.warn("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\n\
+ WARNING: The Interaction URL of a Consentua template has been overridden\n\
+ at runtime.\n\n\
+ In many cases that's OK, but the auditability of your consent records \n\
+ might be reduced. For greater auditability, please contact Consentua \n\
+ support to have your custom interaction delivered through our delivery \n\
+ service.\n\n\
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\
+", args['ix']);
         template.ixUrl = args['ix'];
     }
     else
@@ -250,6 +312,7 @@ function loadInteraction(template)
        // interaction
        var dTemplates = [];
        var dConsents = [];
+       var dUIDs = [];
 
        for(var sid in clients) {
            for(var tid in clients[sid]) {
@@ -260,18 +323,19 @@ function loadInteraction(template)
            }
        }
 
-
-
-       // When the existing consents and the template are ready, give them to the interaction
-       $.when(dTemplates, dConsents, dUIDs).then(function(templates, consents, uids){
+       /**
+        * When the existing consents and the template are ready, send them to the interaction
+        */
+       $.when(whenAll(dTemplates), whenAll(dConsents), whenAll(dUIDs)).done(function(templates, consents, uids){
 
            console.log("Templates, Consents and UIDs have been retrieved, sending to interaction", templates, consents, uids);
 
+           var info = [];
            for(var i in templates) {
-               info.push({template: templates[i], consents: consents[i], uid: uids[i]});
+               info.push({serviceid: templates[i].ServiceID, template: templates[i], consents: consents[i], uid: uids[i]});
            }
 
-            msg.reply(info);
+            msg.reply({services: info});
 
             // Show the iframe and hide the loading indicator
             $('#loading').hide();
@@ -292,7 +356,26 @@ function loadInteraction(template)
         iframe.style.height = height + 'px';
 
         // Tell the embedding page, too
-        wrapcomms.send('consentua-ready', {height: height, uid: args['uid']});
+        var uids = {};
+        var waits = [];
+        console.log("Assemble UID list", clients);
+        for(var sid in clients) {
+            uids[sid] = {};
+            for(var tid in clients[sid]) {
+                var c = clients[sid][tid];
+                (function(sid, tid){
+                    var d;
+                    waits.push(d = c.getUID());
+                    d.done(function(uid){
+                        uids[sid][tid] = uid;
+                    });
+                })(sid, tid);
+            }
+        }
+
+        whenAll(waits).done(function(){
+            wrapcomms.send('consentua-ready', {height: height, uids: uids});
+        });
     });
 
     /**
@@ -303,6 +386,7 @@ function loadInteraction(template)
         // TODO: Handle multiple
         // Route based on serviceid / templateid
         var queue = msg.message;
+        console.log("Set bulk consent", queue);
 
         for(var i in queue)
         {
@@ -312,7 +396,7 @@ function loadInteraction(template)
             var wrapper = clients[atom.serviceid][atom.templateid];
 
             if(!wrapper) {
-                console.error("Wrapper not found for service", serviceid, "template", templateid, clients);
+                console.error("Wrapper not found for service", atom.serviceid, "template", atom.templateid, clients);
                 continue;
             }
 
@@ -340,16 +424,17 @@ function loadInteraction(template)
         				serviceid: msg.message.serviceid, receiptURL: apipath + "/ConsentReceipt/GetConsentReceipt?version=KI-CR-v1.1.0&consentReceiptId=" + res.ConsentReceiptId
         			});
         		});
+
+                // Tell the customer site that the consent interaction is complete
+                wrapcomms.send('consentua-set', {
+                    uid: uid,
+                    serviceid: atom.serviceid,
+                    templateid: atom.templateid,
+                    consents: atom.consents,
+                    complete: atom.complete
+                });
             });
 
-            // Tell the customer site that the consent interaction is complete
-            wrapcomms.send('consentua-set', {
-                uid: args['uid'],
-                serviceid: atom.serviceid,
-                templateid: atom.templateid,
-                consents: atom.consents,
-                complete: atom.complete
-            });
         }
     });
 }

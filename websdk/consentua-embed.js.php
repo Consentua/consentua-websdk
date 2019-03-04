@@ -72,13 +72,17 @@ function ConsentuaEmbed(opts)
     // Default values for non-required options
     var defOpts = {
         uid: false,
-        onset: function(){},
-        onready: function(){},
-        onreceipt: function(){},
+        onset: function(){ },
+        onready: function(){ },
+        onreceipt: function(){ },
         opts: {}
     };
 
     fillOpts(opts, reqOpts, defOpts);
+
+    self.onset = opts.onset;
+    self.onready = opts.onready;
+    self.onreceipt = opts.onreceipt;
 
     var ce = new ConsentuaMultiEmbed({
         services: [{
@@ -88,9 +92,17 @@ function ConsentuaEmbed(opts)
             uid: opts.uid
         }],
         iframe: opts.iframe,
-        onset: opts.onset,
-        onready: opts.onready,
-        onreceipt: opts.onreceipt,
+        onset: function(c){ self.onset(c); },
+
+        // Onready needs to convert from the deep UID structure of the multiEmbed
+        // to a single UID
+        onready: function(c){
+            c.message.uid = c.message.uids[opts.serviceid][opts.templateid];
+            self.onready(c);
+        },
+
+
+        onreceipt: function(c){ self.onreceipt(c); },
         opts: opts.opts
     });
 
