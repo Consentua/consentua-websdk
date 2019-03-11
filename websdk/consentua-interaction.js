@@ -74,6 +74,56 @@ var ConsentuaController = function () {
             }); // Send a message back to the wrapper to confirm that the widget is (notionally) ready
         }
 
+        // Handle resizing
+        var lastBodyHeight = 0;
+        var sendResize = function(force){
+
+            if(typeof force == 'undefined')
+                force = false;
+
+            var body = document.body;
+            var html = document.documentElement;
+            var height = Math.max( body.scrollHeight, body.offsetHeight,
+                                   html.clientHeight, html.scrollHeight, html.offsetHeight );
+
+            console.log("Interaction height", height, "Last was", lastBodyHeight);
+
+            if(force || lastBodyHeight != height)
+            {
+                lastBodyHeight = height;
+                comms.send("consentua-resize", {
+                    height: height
+                });
+            }
+        }
+
+        comms.addHandler('consentua-measure', function(msg){
+            sendResize(true);
+        });
+
+        if(typeof ResizeObserver !== 'undefined') // Use Chrome's ResizeObserver if possible
+        {
+            var ro = new ResizeObserver(function(els){
+                sendResize();
+            });
+
+            ro.observe(document.body);
+        }
+        else // Detect manually
+        {
+            var lastHeight = 0;
+            window.setInterval(function(){
+                var body = document.body;
+                var html = document.documentElement;
+                var height = Math.max( body.scrollHeight, body.offsetHeight,
+                                       html.clientHeight, html.scrollHeight, html.offsetHeight );
+               if(height != lastHeight) {
+                   lastHeight = height;
+                   sendResize();
+               }
+            }, 500);
+        }
+
         self.readyTimeoutWarn = window.setTimeout(function(){ alert("Timeout: The consent UI must call window.consentua.ready() when it's ready!");}, 5000);
 
         // Tell the current document that the consentua environment is ready

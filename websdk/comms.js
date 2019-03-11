@@ -29,7 +29,7 @@ function WindowComms(targetWindow)
     // Receive messages from the other window, and see if there's a handler for them
     self.recv = function(event){
 
-        console.debug("Receive message", event);
+        console.debug("Receive message", event.data.type, event);
 
         if(event.source != targetWindow) // Only handle messages that come from the bound window
         {

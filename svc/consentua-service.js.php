@@ -379,6 +379,24 @@ function loadInteraction(template)
     });
 
     /**
+     * Handle resizes
+     */
+    intcomms.addHandler('consentua-resize', function(msg)
+    {
+        // Fit frame to interaction height
+        var iframe = $('#consentua-interaction').get(0);
+        var height = msg.message.height;
+        iframe.style.height = height + 'px';
+        wrapcomms.send('consentua-resize', {height: height});
+    });
+
+    // The wrapper can request an explicit measurement
+    wrapcomms.addHandler('consentua-measure', function(msg)
+    {
+        intcomms.send('consentua-measure', msg.message);
+    });
+
+    /**
      * Wait for consent to be set
      */
     intcomms.addHandler('consentua-set-bulk', function(msg)

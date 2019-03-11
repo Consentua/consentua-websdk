@@ -12,7 +12,6 @@
 
 ?>
 
-
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
  *
@@ -182,59 +181,41 @@ function ConsentuaMultiEmbed(opts)
 
     var idoc = opts.iframe.contentWindow.document;
 
+
+    // Set up communication with other windows, and register event handlers
+    self.comms = new WindowComms(opts.iframe.contentWindow);
+    self.comms.addHandler('consentua-ready', function(msg){
+        console.log("Embed is ready", msg);
+        opts.iframe.style.height = (msg.message.height + 10) + 'px';
+        self.onready(msg);
+    });
+
+    self.comms.addHandler('consentua-set', self.onset);
+
+    self.comms.addHandler('consentua-receipt', self.onreceipt);
+
+    self.comms.addHandler('consentua-resize', function(msg){
+        opts.iframe.style.height = (msg.message.height + 10) + 'px';
+    });
+
+
     /**
-     * Send a custom event of etype to the subDOM
+     * The container iframe auto-sizes, in co-operation with the interaction
+     * itself; however, widgets are sometimes rendered invisibly (e.g. within
+     * an element that's currently hidden). This observer uses the Intersection
+     * Observer API to resize the container widget when it becomes visible.
      */
-    self.sendMsg = function(etype){
-        var e = idoc.createEvent('Event');
-        e.initEvent(etype, true, true);
+     let observerOptions = {
+       root: null,
+       rootMargin: "0px",
+       threshold: [0.0, 0.75]
+     };
 
-        idoc.dispatchEvent(e);
-    }
+     var updateHeight = function(){
+         self.comms.send('consentua-measure', {}); // This sends back a consentua-resize event, handled above
+     }
 
-    /**
-     * Initialise the UI
-     */
-    var initUI = function(ui_url) {
-
-        // Tell the interaction that the DOM is ready
-        self.sendMsg('consentua-ready');
-    }
-
-    self.recv = function(event)
-    {
-        if(event.source != opts.iframe.contentWindow)
-        {
-            console.debug("Received message didn't come from consentua iframe", event.source, opts.iframe);
-            return;
-        }
-
-        if (!event.origin.match(/^https?:\/\/((.+\.consentua\.com)|(localhost(:[0-9]+)?)|(127\.0\.0\.(1|2|3)(:[0-9]+)?))/)) // Allow 127.0.0.x for development
-        {
-            console.error("Message did not come from Consentua Web Service", event.origin);
-            return;
-        }
-
-        var msg = event.data;
-        console.debug("Message from service", msg);
-
-        // When the interaction is ready, set the iframe height
-        if(msg.type == 'consentua-ready'){
-            console.log("Embed is ready", msg);
-            opts.iframe.style.height = (msg.message.height + 20) + 'px';
-            self.onready(msg);
-        }
-        // When consent is set, pass it to the callback
-        else if (msg.type == 'consentua-set'){
-            self.onset(msg);
-        }
-        // Receipts
-        else if (msg.type =='consentua-receipt'){
-            self.onreceipt(msg);
-        }
-    };
-
-    window.addEventListener("message", self.recv);
+     var visObserver = new IntersectionObserver(updateHeight, observerOptions);
 }
 
 /**
@@ -274,3 +255,12 @@ if (![].keys) {
     return a;
     };
 }
+
+
+
+/**
+ * Inter-document communication, using message passing
+ */
+<?php
+require 'comms.js'; // Include the comms library
+?>

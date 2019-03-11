@@ -114,7 +114,7 @@ pre {
         <input type="text" name="email" value="jbloggs@example.com" /></label>
 
         <!-- This iframe will hold the consentua interaction -->
-        <iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 500px;"></iframe>
+        <iframe id="consentua-widget" src="" style="box-sizing: border-box; width: 100%; max-width: 500px;"></iframe>
 
         <p class="notice">The input below shows the user ID that consentua has generated for this user. This ID should be submitted and stored
         along with the rest of the form, so that up-to-date consent can be retrieved at any time. Normally, this input would be hidden.</p>
