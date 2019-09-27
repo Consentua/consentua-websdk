@@ -8,7 +8,7 @@ function WindowComms(targetWindow)
 
     var replyHandlers = {};
 
-    console.debug("Create comms channel between", window, targetWindow);
+    //console.debug("Create comms channel between", window, targetWindow);
 
     // Send a message to the parent window
     self.send = function(msgType, msgPayload, msgReplyHandler, msgId){
@@ -33,7 +33,7 @@ function WindowComms(targetWindow)
 
         if(event.source != targetWindow) // Only handle messages that come from the bound window
         {
-            console.debug("Received message doesn't belong to this handler (msg / bound window)", event, targetWindow);
+            //console.debug("Received message doesn't belong to this handler (msg / bound window)", event, targetWindow);
             return;
         }
 

@@ -133,7 +133,7 @@ function ConsentuaEmbed(opts)
     {
         if(event.source != opts.iframe.contentWindow)
         {
-            console.debug("Received message didn't come from consentua iframe", event.source, opts.iframe);
+            //console.debug("Received message didn't come from consentua iframe", event.source, opts.iframe);
             return;
         }
 
@@ -158,7 +158,8 @@ function ConsentuaEmbed(opts)
         }
         // Receipts
         else if (msg.type =='consentua-receipt'){
-            self.onreceipt(msg);
+            	console.log("Receipt", msg);
+		self.onreceipt(msg);
         }
     };
 

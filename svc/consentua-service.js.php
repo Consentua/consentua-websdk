@@ -204,10 +204,20 @@ function loadInteraction(template, userid)
 
         // Save the consent settings
         c.setConsents(args['uid'], args['t'], msg.message.consents, extra).then(function(res){
+			var crurl = apipath + "/ConsentReceipt/GetConsentReceipt?version=KI-CR-v1.1.0&consentReceiptId=" + res.ConsentReceiptId
+
 			// Once consent has been set, give the receipt URL to the embedding page
 			wrapcomms.send('consentua-receipt', {
-				receiptURL: apipath + "/ConsentReceipt/GetConsentReceipt?version=KI-CR-v1.1.0&consentReceiptId=" + res.ConsentReceiptId
+				receiptURL: crurl
 			});
+
+			// If a consent store API exists in the browser, give it the receipt
+			// BANG; consent receipts issued and available from every consent interaction xD
+			if(window.consentreceipts){
+				console.log("Consent receipt API is enabled; passing URL", crurl);
+				window.consentreceipts.store_url(crurl);
+			}
+
 		});
 
         // Tell the customer site that the consent interaction is complete
