@@ -12,7 +12,6 @@
 
 ?>
 
-
 /**
  * Instantiate with a reference to iframe that the interaction should be loaded into
  *
@@ -55,7 +54,7 @@ function ConsentuaUIWrapper(iframe, clientid, uid, templateid, serviceid, unused
 }
 
 /**
- * Embed Consentua
+ * This shim migrates from the one-template embed to the multi-template embed
  */
 function ConsentuaEmbed(opts)
 {
@@ -72,6 +71,58 @@ function ConsentuaEmbed(opts)
     // Default values for non-required options
     var defOpts = {
         uid: false,
+        onset: function(){ },
+        onready: function(){ },
+        onreceipt: function(){ },
+        opts: {}
+    };
+
+    fillOpts(opts, reqOpts, defOpts);
+
+    self.onset = opts.onset;
+    self.onready = opts.onready;
+    self.onreceipt = opts.onreceipt;
+
+    var ce = new ConsentuaMultiEmbed({
+        services: [{
+            clientid: opts.clientid,
+            serviceid: opts.serviceid,
+            templateid: opts.templateid,
+            uid: opts.uid
+        }],
+        iframe: opts.iframe,
+        onset: function(c){ self.onset(c); },
+
+        // Onready needs to convert from the deep UID structure of the multiEmbed
+        // to a single UID
+        onready: function(c){
+            c.message.uid = c.message.uids[opts.serviceid][opts.templateid];
+            self.onready(c);
+        },
+
+
+        onreceipt: function(c){ self.onreceipt(c); },
+        opts: opts.opts
+    });
+
+    self.embed = ce;
+}
+
+/**
+ * Embed Consentua
+ */
+function ConsentuaMultiEmbed(opts)
+{
+    var self = this;
+
+    // List of required options
+    var reqOpts = [
+        'services',
+        'iframe'
+    ];
+
+    // Default values for non-required options
+    var defOpts = {
         onset: function(){},
         onready: function(){},
         onreceipt: function(){},
@@ -79,6 +130,109 @@ function ConsentuaEmbed(opts)
         opts: {}
     };
 
+    var svcReqOpts = [
+        'clientid',
+        'serviceid',
+        'templateid'
+    ];
+
+    var svcDefOpts = {
+        uid: false
+    };
+
+    fillOpts(opts, reqOpts, defOpts);
+
+    for(var i in opts.services) {
+        fillOpts(opts.services[i], svcReqOpts, svcDefOpts);
+    }
+
+    console.log("Embed consentua", opts);
+
+    self.onset = opts.onset;
+    self.onready = opts.onready;
+    self.onreceipt = opts.onreceipt;
+    self.oninitial = opts.oninitial;
+
+    // Assemble the JSON we want to pass to the service
+    var svcs = [];
+    for(var i in opts.services) {
+        var s = opts.services[i];
+        svcs.push({
+            sid: s.serviceid,
+            tid: s.templateid,
+            cid: s.clientid,
+            uid: s.uid
+        });
+    }
+
+    var svcjson = {
+        lang: opts.lang,
+        services: svcs
+    }
+
+    // Copy additional options
+    for(var k in opts.opts) {
+        var v = opts.opts[k];
+        svcjson[k] = v;
+    }
+
+    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
+    var url = sdkbase + "#" + JSON.stringify(svcjson);
+
+    opts.iframe.setAttribute('src', url);
+
+    var idoc = opts.iframe.contentWindow.document;
+
+
+    // Set up communication with other windows, and register event handlers
+    self.comms = new WindowComms(opts.iframe.contentWindow);
+    self.comms.addHandler('consentua-ready', function(msg){
+        console.log("Embed is ready", msg);
+        opts.iframe.style.height = (msg.message.height + 10) + 'px';
+        self.onready(msg);
+    });
+
+    self.comms.addHandler('consentua-set', self.onset);
+
+    self.comms.addHandler('consentua-receipt', self.onreceipt);
+
+    self.comms.addHandler('consentua-resize', function(msg){
+        opts.iframe.style.height = (msg.message.height + 10) + 'px';
+    });
+
+    self.comms.addHandler('consentua-initial', function(){
+        self.oninitial(msg);
+    });
+
+
+    /**
+     * The container iframe auto-sizes, in co-operation with the interaction
+     * itself; however, widgets are sometimes rendered invisibly (e.g. within
+     * an element that's currently hidden). This observer uses the Intersection
+     * Observer API to resize the container widget when it becomes visible.
+     */
+     let observerOptions = {
+       root: null,
+       rootMargin: "0px",
+       threshold: [0.0, 0.75]
+     };
+
+     var updateHeight = function(){
+         self.comms.send('consentua-measure', {}); // This sends back a consentua-resize event, handled above
+     }
+
+     var visObserver = new IntersectionObserver(updateHeight, observerOptions);
+}
+
+/**
+ * Helper function; check that opts contains all of the properties listed in
+ * reqOpts (an array), and copy any properties from defOpts (an object) that
+ * don't exist in opts.
+ *
+ * This in effect requires the keys listed in reqOpts, and takes default options
+ * from defOpts.
+ */
+function fillOpts(opts, reqOpts, defOpts) {
     reqOpts.map(function(k) {
         if(typeof opts[k] == 'undefined')
             throw "Required option '"+k+"' is not set";
@@ -88,88 +242,8 @@ function ConsentuaEmbed(opts)
         if(typeof opts[k] == 'undefined')
             opts[k] = defOpts[k];
     });
-
-
-    self.onset = opts.onset;
-    self.onready = opts.onready;
-    self.onreceipt = opts.onreceipt;
-    self.oninitial = opts.oninitial;
-
-
-    var sdkbase = "<?php echo ($_SERVER['HTTPS'] ? 'https' : 'http').'://'.$_SERVER['SERVER_NAME'].(($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) ? ':'.$_SERVER['SERVER_PORT'] : ''); ?>/svc/";
-
-    var url = sdkbase + "#s=" + opts.serviceid + "&c=" + opts.clientid + "&t=" + opts.templateid + "&lang=" + opts.lang;
-
-    if(opts.uid !== false){ // uid is optional, it can be set false to auto-generate in the service
-        url += "&uid=" + opts.uid;
-    }
-
-    for(var k in opts.opts) {
-        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(opts.opts[k]);
-    }
-
-    opts.iframe.setAttribute('src', url)
-
-    var idoc = opts.iframe.contentWindow.document;
-
-    /**
-     * Send a custom event of etype to the subDOM
-     */
-    self.sendMsg = function(etype){
-        var e = idoc.createEvent('Event');
-        e.initEvent(etype, true, true);
-
-        idoc.dispatchEvent(e);
-    }
-
-    /**
-     * Initialise the UI
-     */
-    var initUI = function(ui_url) {
-
-        // Tell the interaction that the DOM is ready
-        self.sendMsg('consentua-ready');
-    }
-
-    self.recv = function(event)
-    {
-        if(event.source != opts.iframe.contentWindow)
-        {
-            console.debug("Received message didn't come from consentua iframe", event.source, opts.iframe);
-            return;
-        }
-
-        if (!event.origin.match(/^https?:\/\/((.+\.consentua\.com)|(localhost(:[0-9]+)?)|(127\.0\.0\.(1|2|3)(:[0-9]+)?))/)) // Allow 127.0.0.x for development
-        {
-            console.error("Message did not come from Consentua Web Service", event.origin);
-            return;
-        }
-
-        var msg = event.data;
-        console.debug("Message from service", msg);
-
-        // 'consentua-initial' contains initial consent status
-        if(msg.type == 'consentua-initial'){
-            self.oninitial(msg);
-        }
-        // When the interaction is ready, set the iframe height
-        else if(msg.type == 'consentua-ready'){
-            console.log("Embed is ready", msg);
-            opts.iframe.style.height = (msg.message.height + 20) + 'px';
-            self.onready(msg);
-        }
-        // When consent is set, pass it to the callback
-        else if (msg.type == 'consentua-set'){
-            self.onset(msg);
-        }
-        // Receipts
-        else if (msg.type =='consentua-receipt'){
-            self.onreceipt(msg);
-        }
-    };
-
-    window.addEventListener("message", self.recv);
 }
+
 
 /**
  * IE Polyfill for array.keys()
@@ -187,3 +261,12 @@ if (![].keys) {
     return a;
     };
 }
+
+
+
+/**
+ * Inter-document communication, using message passing
+ */
+<?php
+require 'comms.js'; // Include the comms library
+?>

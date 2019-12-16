@@ -114,7 +114,7 @@ pre {
         <input type="text" name="email" value="jbloggs@example.com" /></label>
 
         <!-- This iframe will hold the consentua interaction -->
-        <iframe id="consentua-widget" src="" style="box-model: border-box; width: 100%; max-width: 500px;"></iframe>
+        <iframe id="consentua-widget" src="" style="box-sizing: border-box; width: 100%; max-width: 500px;"></iframe>
 
         <p class="notice">The input below shows the user ID that consentua has generated for this user. This ID should be submitted and stored
         along with the rest of the form, so that up-to-date consent can be retrieved at any time. Normally, this input would be hidden.</p>
@@ -136,6 +136,16 @@ pre {
         * form.
         */
         var uid = false;
+
+
+        /**
+         * Some interactions can display multiple templates at once, as in this demo
+         * ** This feature is experimental **
+         */
+        var cid2 = '62';
+        var sid2 = '126';
+        var tid2 = '118';
+        var uid2 = false;
 
         /**
         * There are two event handlers that can be set up on the wrapper; one that's fired
@@ -168,16 +178,36 @@ pre {
          * For testing out new interactions, pass an "ix" option that contains the URL of the interaction you want to test.
          * This will be used instead of the interaction that the template is bound to in Consentua. e.g.
          *
-         * var cwrap = new ConsentuaUIWrapper(iframe, cid, uid, tid, sid, skey, function(){}, "fr", {ix: "http://127.0.0.1:8080/ui-simple/main.html"});
+         *       opts: {ix: "http://127.0.0.1:8080/ui-simple/main.html"}
          */
 
-         var cwrap = new ConsentuaEmbed({
+         /*var cwrap = new ConsentuaMultiEmbed({
+             iframe: iframe,
+             services: [
+                {
+                    clientid: cid,
+                    uid: uid,
+                    templateid: tid,
+                    serviceid: sid
+                },
+                {
+                    clientid: cid2,
+                    uid: uid2,
+                    templateid: tid2,
+                    serviceid: sid2
+                }
+            ],
+            opts: {ix: "http://127.0.0.1:8080/ui-multi-simple/main.html"}
+        });*/
+
+        var cwrap = new ConsentuaEmbed({
              iframe: iframe,
              clientid: cid,
              uid: uid,
              templateid: tid,
-             serviceid: sid
-         });
+             serviceid: sid,
+             //opts: {ix: "http://127.0.0.1:8080/ui-multi-simple/main.html"}
+        });
 
         cwrap.onset = cb_set;
         cwrap.onready = cb_ready;
