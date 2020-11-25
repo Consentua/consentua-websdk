@@ -27,12 +27,12 @@ html, body {
 
 #question
 {
-    font-size: 1.4em;
+    font-size: 1.2em;
 }
 
 #explanation
 {
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 ol {
@@ -44,7 +44,7 @@ ol {
 .group
 {
     border: 1px solid #ccc;
-    margin: 15px 0 0 0;
+    margin: 15px 5px 0 5px;
     border-radius: 12px;
     position: relative;
 }
@@ -52,8 +52,8 @@ ol {
 .group ol
 {
     display: inline-block;
-    width: 80%;
-    margin: 15px;
+    width: 90%;
+    margin: 5px;
 }
 
     .group ol li
@@ -164,4 +164,12 @@ input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
+}
+
+@media screen and (max-width: 490px) {
+        
+        body {
+                font-size: 12px;
+        }
+
 }
